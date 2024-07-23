@@ -5,11 +5,11 @@ import MobileNav from './MobileNav';
 
 const Header = () => {
   return (
-    <header className="py-8 text-white dark:text-white xl:py-12">
-      <div className="container mx-auto flex items-center justify-between">
+    <header className=" text-white dark:text-white xl:py-12">
+      <div className="mx-auto flex items-center justify-between px-10">
         {/*logo*/}
         <Link href="">
-          <h1 className="text-4xl font-semibold">
+          <h1 className="text-3xl font-semibold">
             IEEE CEK<span className="text-accent">.</span>
           </h1>
         </Link>

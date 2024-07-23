@@ -1,28 +1,28 @@
-import AcmeLogo from '@/app/ui/acme-logo';
-import { ArrowRightIcon } from '@heroicons/react/24/outline';
-import Link from 'next/link';
-import styles from '@/app/ui/home.module.css';
-import { lusitana } from './ui/fonts';
-import Image from 'next/image';
-
-import { Button } from '@/app/ui/home/ui/button';
-import { FiDownload } from 'react-icons/fi';
 import Social from '@/app/ui/home/Social';
-import Photo from '@/app/ui/home/Photo';
 import Stats from '@/app/ui/home/Stats';
 import Header from './ui/home/Header';
+import RotatingCylinder from './ui/home/Cylinder';
+import '@/app/ui/global.css';
+
+const images = [
+  '/globe/home1.jpg',
+  '/globe/home2.jpg',
+  '/globe/home3.jpg',
+  '/globe/home4.jpg',
+];
 
 export default function Page() {
   return (
-    <section className="h-full bg-[#1c1c22]">
+    <section className="h-full w-full bg-[#1c1c22] sm:w-screen">
       <Header />
-      <div className="container mx-auto h-full">
+      <div className="mx-auto h-full p-10">
         <div>
-          <div className="flex flex-col items-center justify-between xl:flex-row xl:pb-24 xl:pt-8">
+          <div className="flex w-full flex-col items-center justify-between xl:flex-row xl:pb-24 xl:pt-8">
             {/*text*/}
-            <div className="order-2 text-center xl:order-none xl:text-left">
-              <h1 className="h1 mb-6 text-white">
-                Welcome to
+            <div className="order-2 text-center sm:mt-10 xl:order-none xl:text-left">
+              <h1 className="h3 mb-6 text-white">
+                COLLEGE OF ENGINEERING KIDANGOOR
+                <br />
                 <br />
                 <span className="text-accent">IEEE CEK SB</span>
               </h1>
@@ -43,9 +43,8 @@ export default function Page() {
               </div>
             </div>
             {/*photo*/}
-            <div className="order-1 mb-8 xl:order-none xl:mb-0">
-              <Photo />
-            </div>
+            <RotatingCylinder images={images} />
+            <div className=""></div>
           </div>
         </div>
       </div>
