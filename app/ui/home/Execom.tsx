@@ -1,8 +1,9 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import Header from '@/app/ui/home/Header';
 import MemberCard from '@/app/ui/home/MemberCard';
 import { useRouter } from 'next/navigation';
+import MemberCardSkeleton from './MemberCardSkeleton';
 
 export default function Execom(data: any) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -120,7 +121,9 @@ export default function Execom(data: any) {
         </div>
         <div className="mt-20 flex w-full flex-wrap justify-center gap-10">
           {data.members.map((member: any, index: any) => (
-            <MemberCard key={index} member={member} />
+            <Suspense key={index} fallback={<MemberCardSkeleton />}>
+              <MemberCard key={index} member={member} />
+            </Suspense>
           ))}
         </div>
       </div>
