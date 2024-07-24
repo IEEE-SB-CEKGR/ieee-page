@@ -56,8 +56,8 @@ export default async function MembersTable({
                 <th scope="col" className="px-3 py-5 font-medium">
                   Role
                 </th>
-                <th scope="col" className="relative py-3 pl-6 pr-3">
-                  <span className="sr-only">Edit</span>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  Year
                 </th>
               </tr>
             </thead>
@@ -81,6 +81,8 @@ export default async function MembersTable({
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">{member.type}</td>
                   <td className="whitespace-nowrap px-3 py-3">{member.role}</td>
+                  <td className="whitespace-nowrap px-3 py-3">{member.year}</td>
+
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
                       <UpdateMember id={member.id} />

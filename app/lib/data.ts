@@ -5,7 +5,6 @@ import {
   InvoicesTable,
   LatestInvoiceRaw,
   User,
-  Revenue,
   EventTable,
   EventForm,
   Member,
@@ -48,9 +47,9 @@ export async function fetchChart() {
     throw new Error('Failed to fetch revenue data.');
   }
 }
-
+l;
 export async function fetchUpcomingEvents() {
-  noStore();
+  noS.tore();
 
   try {
     const data = await sql<LatestInvoiceRaw>`
@@ -119,7 +118,8 @@ export async function fetchFilteredMembers(query: string, currentPage: number) {
         name,
         type,
         role,
-        image_url
+        image_url,
+        year
       FROM members
       WHERE
         name::text ILIKE ${`%${query}%`}
@@ -237,7 +237,8 @@ export async function fetchMemberById(id: string) {
         name,
         type,
         role,
-        image_url
+        image_url,
+        year
       FROM members
       WHERE id = ${id};
     `;

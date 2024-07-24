@@ -12,7 +12,8 @@ async function seedMembers(client) {
         name VARCHAR(255) NOT NULL,
         type TEXT NOT NULL,
         role TEXT NOT NULL,
-        image_url VARCHAR(255) NOT NULL
+        image_url VARCHAR(255) NOT NULL,
+        year TEXT NOT NULL
       );
     `;
 
@@ -22,8 +23,8 @@ async function seedMembers(client) {
     const insertedMembers = await Promise.all(
       members.map(async (member) => {
         return client.sql`
-        INSERT INTO members ( name, type, role, image_url)
-        VALUES (${member.name}, ${member.type}, ${member.role}, ${member.image_url})
+        INSERT INTO members ( name, type, role, image_url, year )
+        VALUES (${member.name}, ${member.type}, ${member.role}, ${member.image_url}, ${member.year})
         ON CONFLICT (id) DO NOTHING;
       `;
       }),

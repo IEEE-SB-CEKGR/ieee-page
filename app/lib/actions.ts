@@ -8,6 +8,7 @@ import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { Member } from './definitions';
 
 const CreateMember = z.object({
   name: z.string({
@@ -16,6 +17,7 @@ const CreateMember = z.object({
   type: z.string({ invalid_type_error: 'Please select a type.' }),
   role: z.string({ invalid_type_error: 'Please select a role.' }),
   imageUrl: z.string({ invalid_type_error: 'Please select a image.' }),
+  year: z.string({ invalid_type_error: 'Please select a year.' }),
 });
 
 const CreateEvent = z.object({
@@ -49,6 +51,7 @@ export type EditMemberState = {
   };
   message?: string | null;
   imageUrl: string;
+  year: string;
 };
 
 export type EditFormState = {
@@ -77,6 +80,27 @@ export async function authenticate(
       }
     }
     throw error;
+  }
+}
+
+export async function filterMembersOnYear(year: string) {
+  try {
+    const members = await sql<Member>`
+      SELECT
+        id,
+        name,
+        type,
+        role,
+        image_url,
+        year
+      FROM members
+      WHERE year = ${year}
+      ORDER BY name
+    `;
+    return members.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch members.');
   }
 }
 
@@ -122,6 +146,7 @@ export async function createMember(prevState: State, formData: FormData) {
     imageUrl: `/members/${imageName}`,
     type: formData.get('type'),
     role: formData.get('role'),
+    year: formData.get('year'),
   });
 
   console.log('validatedFields', validatedFields);
@@ -135,13 +160,13 @@ export async function createMember(prevState: State, formData: FormData) {
   }
 
   // Prepare data for insertion into the database
-  const { name, imageUrl, role, type } = validatedFields.data;
+  const { name, imageUrl, role, type, year } = validatedFields.data;
 
   // Insert data into the database
   try {
     await sql`
-       INSERT INTO members (name, type, role, image_url)
-        VALUES (${name}, ${type}, ${role}, ${imageUrl})
+       INSERT INTO members (name, type, role, image_url,year)
+        VALUES (${name}, ${type}, ${role}, ${imageUrl}, ${year})
       `;
   } catch (error) {
     console.error('Database Error:', error);
@@ -309,6 +334,7 @@ export async function updateMember(
     type: formData.get('type'),
     role: formData.get('role'),
     imageUrl: `/members/${imageName}`,
+    year: formData.get('year'),
   });
 
   if (!validatedFields.success) {
@@ -318,7 +344,7 @@ export async function updateMember(
     };
   }
 
-  const { name, imageUrl, type, role } = validatedFields.data;
+  const { name, imageUrl, type, role, year } = validatedFields.data;
 
   console.log('imageName : ', imageName);
   console.log('imageUrl : ', imageUrl);
@@ -326,7 +352,7 @@ export async function updateMember(
   try {
     await sql`
         UPDATE members
-        SET name = ${name}, type = ${type}, role = ${role} , image_url = ${imageUrl}
+        SET name = ${name}, type = ${type}, role = ${role} , image_url = ${imageUrl}, year = ${year}
         WHERE id = ${id}
       `;
   } catch (error) {
@@ -421,9 +447,6 @@ export async function updateEvent(
     description,
     status,
   } = validatedFields.data;
-
-  console.log('imageName : ', imageName);
-  console.log('imageUrl : ', imageUrl);
 
   try {
     await sql`

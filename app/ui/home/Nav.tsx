@@ -10,7 +10,7 @@ const links = [
   },
   {
     name: 'Execom',
-    path: '/execom',
+    path: '/execom/2023',
   },
   {
     name: 'Events',

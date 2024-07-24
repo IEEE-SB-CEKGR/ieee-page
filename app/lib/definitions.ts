@@ -27,6 +27,7 @@ export type Member = {
   type: string;
   role: string;
   image_url: string;
+  year: string;
 };
 
 export type Invoice = {
@@ -50,11 +51,6 @@ export type EventTable = {
   link: string;
   fee: string;
   status: string;
-};
-
-export type Revenue = {
-  month: string;
-  revenue: number;
 };
 
 export type LatestInvoice = {

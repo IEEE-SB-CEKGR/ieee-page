@@ -160,6 +160,24 @@ export default function EditMemberForm({ member }: { member: Member }) {
             </div>
           </div>
         </div>
+        {/* Year*/}
+        <div className="mb-4">
+          <label htmlFor="role" className="mb-2 block text-sm font-medium">
+            Year
+          </label>
+          <div className="mt-2 rounded-md">
+            <div className="">
+              <input
+                id="year"
+                name="year"
+                type="string"
+                placeholder="Enter year"
+                defaultValue={member.year}
+                className="peer block w-full rounded-md border border-gray-200 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
+              />
+            </div>
+          </div>
+        </div>
       </div>
       <div className="mt-6 flex justify-end gap-4">
         <Link
