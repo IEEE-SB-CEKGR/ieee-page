@@ -9,7 +9,7 @@ import {
   EventForm,
   Member,
 } from './definitions';
-import { formatCurrency, formatDateToLocal, countEventsByMonth } from './utils';
+import { formatDateToLocal, countEventsByMonth } from './utils';
 
 export async function fetchChart() {
   // Add noStore() here to prevent the response from being cached.
@@ -47,9 +47,9 @@ export async function fetchChart() {
     throw new Error('Failed to fetch revenue data.');
   }
 }
-l;
+
 export async function fetchUpcomingEvents() {
-  noS.tore();
+  noStore();
 
   try {
     const data = await sql<LatestInvoiceRaw>`
