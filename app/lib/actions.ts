@@ -8,7 +8,8 @@ import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { Member } from './definitions';
+import { Member, UpcomingEvent } from './definitions';
+import { formatDateToLocal } from './utils';
 
 const CreateMember = z.object({
   name: z.string({
@@ -32,6 +33,7 @@ const CreateEvent = z.object({
   description: z.string({ invalid_type_error: 'Please enter a description.' }),
   status: z.string({ invalid_type_error: 'Please select a status.' }),
   imageUrl: z.string({ invalid_type_error: 'Please select a image.' }),
+  time: z.string({ invalid_type_error: 'Please select a time.' }),
 });
 
 export type State = {
@@ -80,6 +82,30 @@ export async function authenticate(
       }
     }
     throw error;
+  }
+}
+
+export async function fetchUpcomingEventsAction() {
+  try {
+    const data = await sql<UpcomingEvent>`
+      SELECT fee, name, image_url, id, date, mode, venue, description,link, time
+      FROM events
+      WHERE date >= CURRENT_DATE
+      ORDER BY date ASC
+      LIMIT 5`;
+
+    const upcomingEvents = data.rows.map((event) => ({
+      ...event,
+      date: formatDateToLocal(event.date),
+    }));
+
+    console.log('fetch upcoming events : ', upcomingEvents);
+
+    return upcomingEvents;
+  } catch (error) {
+    console.log('error : ', error);
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch the upcoming events.');
   }
 }
 
@@ -230,6 +256,7 @@ export async function createEvent(prevState: State, formData: FormData) {
     description: formData.get('description'),
     status: formData.get('status'),
     imageUrl: `/events/${imageName}`,
+    time: formData.get('time'),
   });
 
   console.log('validatedFields', validatedFields);
@@ -253,13 +280,14 @@ export async function createEvent(prevState: State, formData: FormData) {
     link,
     description,
     status,
+    time,
   } = validatedFields.data;
 
   // Insert data into the database
   try {
     await sql`
-       INSERT INTO events (name, date, status, fee, mode, venue, image_url, link, description)
-        VALUES (${name}, ${date}, ${status}, ${amount}, ${mode}, ${venue}, ${imageUrl}, ${link}, ${description})
+       INSERT INTO events (name, date, status, fee, mode, venue, image_url, link, description, time)
+        VALUES (${name}, ${date}, ${status}, ${amount}, ${mode}, ${venue}, ${imageUrl}, ${link}, ${description}, ${time})
       `;
   } catch (error) {
     console.error('Database Error:', error);
@@ -427,6 +455,7 @@ export async function updateEvent(
     description: formData.get('description'),
     status: formData.get('status'),
     imageUrl: `/events/${imageName}`,
+    time: formData.get('time'),
   });
 
   if (!validatedFields.success) {
@@ -446,12 +475,13 @@ export async function updateEvent(
     link,
     description,
     status,
+    time,
   } = validatedFields.data;
 
   try {
     await sql`
         UPDATE events
-        SET name = ${name}, fee = ${amount}, status = ${status} , mode = ${mode}, venue = ${venue}, image_url = ${imageUrl}, link = ${link}, description = ${description}, date = ${date}
+        SET name = ${name}, fee = ${amount}, status = ${status} , mode = ${mode}, venue = ${venue}, image_url = ${imageUrl}, link = ${link}, description = ${description}, date = ${date}, time = ${time}
         WHERE id = ${id}
       `;
   } catch (error) {

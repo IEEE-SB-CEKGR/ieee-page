@@ -142,7 +142,24 @@ export default function EditEventForm({ event }: { event: EventForm }) {
             </div>
           </div>
         </div>
-
+        {/* time */}
+        <div className="mb-4">
+          <label htmlFor="amount" className="mb-2 block text-sm font-medium">
+            Time
+          </label>
+          <div className="mt-2 rounded-md">
+            <div className="">
+              <input
+                id="time"
+                name="time"
+                type="string"
+                placeholder="Enter the time"
+                defaultValue={event.time}
+                className="peer block w-full rounded-md border border-gray-200 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
+              />
+            </div>
+          </div>
+        </div>
         {/* mode */}
         <div className="mb-4">
           <label htmlFor="amount" className="mb-2 block text-sm font-medium">

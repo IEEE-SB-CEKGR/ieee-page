@@ -5,7 +5,7 @@ import { Member } from '@/app/lib/definitions';
 
 const MemberCard = ({ member }: { member: Member }) => {
   return (
-    <div className="bg-dark mem-border-color w-full max-w-sm transform rounded-lg border motion-safe:hover:scale-105">
+    <div className="bg-dark mem-border-color w-full max-w-sm  rounded-lg border motion-safe:hover:scale-105">
       <div className="flex justify-end px-4 pt-4"></div>
       <div className="flex flex-col items-center pb-10">
         <Image

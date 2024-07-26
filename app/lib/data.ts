@@ -3,13 +3,39 @@ import { sql } from '@vercel/postgres';
 import {
   InvoiceForm,
   InvoicesTable,
-  LatestInvoiceRaw,
   User,
   EventTable,
   EventForm,
   Member,
+  UpcomingEvent,
 } from './definitions';
 import { formatDateToLocal, countEventsByMonth } from './utils';
+
+export async function fetchUpcomingEvents() {
+  noStore();
+
+  try {
+    const data = await sql<UpcomingEvent>`
+      SELECT fee, name, image_url, id, date, mode, venue, time
+      FROM events
+      WHERE date >= CURRENT_DATE
+      ORDER BY date ASC
+      LIMIT 5`;
+
+    const upcomingEvents = data.rows.map((event) => ({
+      ...event,
+      date: formatDateToLocal(event.date),
+    }));
+
+    console.log('fetch upcoming events : ', upcomingEvents);
+
+    return upcomingEvents;
+  } catch (error) {
+    console.log('error : ', error);
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch the upcoming events.');
+  }
+}
 
 export async function fetchChart() {
   // Add noStore() here to prevent the response from being cached.
@@ -19,13 +45,7 @@ export async function fetchChart() {
   try {
     // Artificially delay a response for demo purposes.
     // Don't do this in production :)
-
-    console.log('Fetching event data...');
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-
     const data = await sql`SELECT date FROM events WHERE status='hosted'`;
-
-    console.log('Data fetch completed after 3 seconds.');
 
     const chartData = data.rows.map((date: any) => {
       let temp = formatDateToLocal(date.date).split(' ');
@@ -45,28 +65,6 @@ export async function fetchChart() {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch revenue data.');
-  }
-}
-
-export async function fetchUpcomingEvents() {
-  noStore();
-
-  try {
-    const data = await sql<LatestInvoiceRaw>`
-      SELECT fee, name, image_url, id, date
-      FROM events
-      WHERE date >= CURRENT_DATE
-      ORDER BY date ASC
-      LIMIT 5`;
-
-    const upcomingEvents = data.rows.map((event) => ({
-      ...event,
-      amount: event.fee,
-    }));
-    return upcomingEvents;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch the upcoming events.');
   }
 }
 
@@ -127,8 +125,6 @@ export async function fetchFilteredMembers(query: string, currentPage: number) {
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `;
 
-    console.log('Members : ', members);
-
     return members.rows;
   } catch (error) {
     console.error('Database Error:', error);
@@ -151,7 +147,8 @@ export async function fetchFilteredEvents(query: string, currentPage: number) {
         image_url,
         fee,
         description,
-        link
+        link,
+        time
       FROM events
       WHERE
         name::text ILIKE ${`%${query}%`} OR
@@ -269,7 +266,8 @@ export async function fetchEventById(id: string) {
         description,
         date,
         mode,
-        link
+        link,
+        time
       FROM events
       WHERE id = ${id};
     `;

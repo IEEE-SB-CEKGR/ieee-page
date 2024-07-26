@@ -79,6 +79,7 @@ const events = [
     venue: 'zoom',
     description: 'description1',
     link: 'link1',
+    time: '10:00 AM - 12:00 PM',
   },
   {
     name: 'event2',
@@ -90,6 +91,7 @@ const events = [
     venue: 'venue2',
     description: 'description2',
     link: 'link2',
+    time: '10:00 AM - 12:00 PM',
   },
   {
     name: 'event3',
@@ -101,6 +103,7 @@ const events = [
     venue: 'zoom',
     description: 'description3',
     link: 'link3',
+    time: '10:00 AM - 12:00 PM',
   },
   {
     name: 'event4',
@@ -112,6 +115,7 @@ const events = [
     venue: 'venue4',
     description: 'description4',
     link: 'link4',
+    time: '10:00 AM - 12:00 PM',
   },
   {
     name: 'event5',
@@ -123,6 +127,7 @@ const events = [
     venue: 'zoom',
     description: 'description5',
     link: 'link5',
+    time: '10:00 AM - 12:00 PM',
   },
   {
     name: 'event6',
@@ -134,6 +139,7 @@ const events = [
     venue: 'zoom',
     description: 'description6',
     link: 'link6',
+    time: '10:00 AM - 12:00 PM',
   },
   {
     name: 'event7',
@@ -145,6 +151,7 @@ const events = [
     venue: 'zoom',
     description: 'description7',
     link: 'link7',
+    time: '10:00 AM - 12:00 PM',
   },
   {
     name: 'event8',
@@ -156,6 +163,7 @@ const events = [
     venue: 'zoom',
     description: 'description8',
     link: 'link8',
+    time: '10:00 AM - 12:00 PM',
   },
   {
     name: 'event9',
@@ -167,6 +175,7 @@ const events = [
     venue: 'zoom',
     description: 'description9',
     link: 'link9',
+    time: '10:00 AM - 12:00 PM',
   },
   {
     name: 'event10',
@@ -178,6 +187,7 @@ const events = [
     venue: 'zoom',
     description: 'description10',
     link: 'link10',
+    time: '10:00 AM - 12:00 PM',
   },
 ];
 

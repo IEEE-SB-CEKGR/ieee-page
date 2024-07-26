@@ -47,6 +47,10 @@ input[type='number']::-webkit-outer-spin-button {
   border-color: #0ea5c8;
 }
 
+.mem-border-color:hover {
+  border-width: 3px;
+}
+
 @media (max-width: 640px) {
   .small-scr {
     width: 37rem;
