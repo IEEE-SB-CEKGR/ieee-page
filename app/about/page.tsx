@@ -1,12 +1,16 @@
 'use client';
 
 import Header from '@/app/ui/home/Header';
-
+import AboutPage from '../ui/home/About';
+import Footer from '../ui/home/Footer';
 export default function Page() {
   return (
-    <section className="h-full w-full bg-[#1c1c22] sm:w-screen">
+    <section className="h-screen w-full bg-[#1c1c22] sm:w-screen">
       <Header />
-      <div className="mx-auto h-full p-10"></div>
+      <div className="h-full p-10">
+        <AboutPage />
+      </div>
+      <Footer />
     </section>
   );
 }

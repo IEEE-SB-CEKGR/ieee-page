@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { filterMembersOnYear } from '@/app/lib/actions';
 import Execom from '@/app/ui/home/Execom';
+import Footer from '@/app/ui/home/Footer';
 
 export default async function Page({ params }: { params: { year: string } }) {
   const year = params.year;
@@ -13,6 +14,7 @@ export default async function Page({ params }: { params: { year: string } }) {
   return (
     <main>
       <Execom members={members} year={year} />
+      <Footer />
     </main>
   );
 }

@@ -38,7 +38,7 @@ export default function Execom(data: any) {
   }, []);
 
   return (
-    <section className="h-full w-full bg-[#1c1c22] sm:w-screen">
+    <section className="h-screen w-full bg-[#1c1c22] sm:w-screen">
       <Header />
       <div className="mx-auto h-full w-full p-3">
         <div className="relative z-20">

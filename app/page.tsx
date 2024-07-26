@@ -2,6 +2,7 @@ import Social from '@/app/ui/home/Social';
 import Stats from '@/app/ui/home/Stats';
 import Header from './ui/home/Header';
 import RotatingCylinder from './ui/home/Cylinder';
+import Footer from './ui/home/Footer';
 import '@/app/ui/global.css';
 
 const images = [
@@ -49,6 +50,9 @@ export default function Page() {
         </div>
       </div>
       <Stats />
+      <div className="bottom-0.5 mt-20">
+        <Footer />
+      </div>
     </section>
   );
 }
