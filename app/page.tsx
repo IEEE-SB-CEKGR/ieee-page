@@ -27,7 +27,7 @@ export default function Page() {
                 <br />
                 <span className="text-accent">IEEE CEK SB</span>
               </h1>
-              <p className="mb-9 max-w-[500px] text-white/80">
+              <p className="animate-pulse mb-9 max-w-[500px] text-white/80">
                 Lorem Ipsum is simply dummy text of the printing and typesetting
                 industry. Lorem Ipsum has been the industry's standard dummy
                 text ever since the 1500s, when an unknown printer took a galley
