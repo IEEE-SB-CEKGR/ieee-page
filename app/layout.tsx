@@ -3,6 +3,7 @@ import { JetBrains_Mono } from 'next/font/google';
 import { Metadata } from 'next';
 
 import PageTransition from './ui/home/PageTransition';
+import Footer from './ui/home/Footer';
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
@@ -28,6 +29,8 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${jetbrainsMono.variable} small-scr antialiased`}>
         <PageTransition>{children}</PageTransition>
+
+        <Footer />
       </body>
     </html>
   );

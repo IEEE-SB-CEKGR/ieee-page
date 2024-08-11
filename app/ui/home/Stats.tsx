@@ -1,6 +1,9 @@
 'use client';
 
+import { useEffect } from 'react';
 import CountUp from 'react-countup';
+import { fetchStats } from '@/app/lib/actions';
+import { date } from 'zod';
 
 const stats = [
   { number: 30, text: 'Events Hosted' },
@@ -9,6 +12,15 @@ const stats = [
 ];
 
 const Stats = () => {
+  useEffect(() => {
+    const fetchStatsData = async () => {
+      const data = await fetchStats();
+      console.log('Stats data : ', data);
+    };
+
+    fetchStatsData();
+  }, []);
+
   return (
     <section className="container">
       <div className="containermx-auto px-10">

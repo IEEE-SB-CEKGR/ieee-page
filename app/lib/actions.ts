@@ -66,6 +66,36 @@ export type EditFormState = {
   imageUrl: string;
 };
 
+export async function fetchStats() {
+  try {
+    // You can probably combine these into a single SQL query
+    // However, we are intentionally splitting them to demonstrate
+    // how to initialize multiple queries in parallel with JS.
+    const eventCountPromise = sql`SELECT COUNT(*) FROM events`;
+    const memberCountPromise = sql`SELECT COUNT(*) FROM members`;
+    const eventHostedPromise = sql`SELECT COUNT(*) FROM events WHERE status = 'hosted'`;
+
+    const data = await Promise.all([
+      eventCountPromise,
+      memberCountPromise,
+      eventHostedPromise,
+    ]);
+
+    const numberOfEvents = data[0].rows[0].count ?? '0';
+    const numberOfMembers = data[1].rows[0].count ?? '0';
+    const totalHostedEvents = data[2].rows[0].count ?? '0';
+
+    return {
+      numberOfMembers,
+      numberOfEvents,
+      totalHostedEvents,
+    };
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch card data.');
+  }
+}
+
 export async function authenticate(
   prevState: string | undefined,
   formData: FormData,

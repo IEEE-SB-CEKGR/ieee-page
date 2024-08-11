@@ -1,5 +1,4 @@
 'use client';
-// src/components/RotatingCylinder.tsx
 import * as React from 'react';
 import { Carousel, CarouselItem, CarouselRef } from 'react-round-carousel';
 import './cylinder.css';
@@ -17,25 +16,12 @@ const images = [
   '/globe/home4.jpg',
 ];
 
-/* Create an array of Carousel Items
-const items: CarouselItem[] = images
-  .fill('')
-  .map((_: string, index: number) => ({
-    alt: 'A random photo',
-    image: `https://picsum.photos/${210 + index}`,
-    content: (
-      <div>
-        <strong>Round Carousel</strong>
-  
-      <span>Slide number {index + 1}</span>
-      </div>
-    ),
-  }));
-*/
-
 const RotatingCylinder: React.FC = () => {
   const carouselRef = React.createRef<CarouselRef>();
-  const [enlargedIndex, setEnlargedIndex] = React.useState<number | null>(null);
+
+  const preventDefaultTouchBehavior = (e: React.TouchEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
 
   const items: CarouselItem[] = images.map((image, index) => ({
     alt: `Slide ${index + 1}`,
@@ -43,14 +29,18 @@ const RotatingCylinder: React.FC = () => {
     content: (
       <div>
         <strong>Round Carousel</strong>
-
         <span>Slide number {index + 1}</span>
       </div>
     ),
   }));
 
   return (
-    <div className="">
+    <div
+      className="carousel"
+      onTouchStart={preventDefaultTouchBehavior}
+      onTouchMove={preventDefaultTouchBehavior}
+      onTouchEnd={preventDefaultTouchBehavior}
+    >
       <Carousel ref={carouselRef} items={items} slideOnClick />
     </div>
   );

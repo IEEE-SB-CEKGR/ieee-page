@@ -1,9 +1,12 @@
+'use client';
+
 import Social from '@/app/ui/home/Social';
 import Stats from '@/app/ui/home/Stats';
 import Header from './ui/home/Header';
 import RotatingCylinder from './ui/home/Cylinder';
 import Footer from './ui/home/Footer';
 import '@/app/ui/global.css';
+import Carousel from './ui/home/Carousel';
 
 const images = [
   '/globe/home1.jpg',
@@ -12,28 +15,32 @@ const images = [
   '/globe/home4.jpg',
 ];
 
+const OPTIONS: EmblaOptionsType = { loop: true };
+const SLIDE_COUNT = 5;
+const SLIDES = Array.from(Array(SLIDE_COUNT).keys());
+
 export default function Page() {
   return (
-    <section className="h-full w-full bg-[#1c1c22] sm:w-screen">
+    <section className="min-h-screen w-full bg-[#1c1c22]">
       <Header />
-      <div className="mx-auto h-full p-10">
+      <div className="mx-auto p-4 sm:p-10">
         <div>
-          <div className="flex w-full flex-col items-center justify-between xl:flex-row xl:pb-24 xl:pt-8">
-            {/*text*/}
+          <div className="flex flex-col items-center justify-center xl:flex-row xl:justify-between xl:pb-24 xl:pt-8">
+            {/* text */}
             <div className="order-2 text-center sm:mt-10 xl:order-none xl:text-left">
-              <h1 className="h3 mb-6 text-white">
+              <h1 className="mb-6 text-2xl text-white sm:text-3xl lg:text-4xl">
                 COLLEGE OF ENGINEERING KIDANGOOR
                 <br />
                 <br />
                 <span className="text-accent">IEEE CEK SB</span>
               </h1>
-              <p className="animate-pulse mb-9 max-w-[500px] text-white/80">
+              <p className="animate-pulse mb-9 max-w-[500px] text-white/80 sm:w-screen">
                 Lorem Ipsum is simply dummy text of the printing and typesetting
                 industry. Lorem Ipsum has been the industry's standard dummy
                 text ever since the 1500s, when an unknown printer took a galley
                 of type and scrambled it to make a type specimen book.
               </p>
-              {/*Buttons and Socials*/}
+              {/* Buttons and Socials */}
               <div className="flex flex-col items-center gap-8 xl:flex-row">
                 <div className="mb-8 xl:mb-0">
                   <Social
@@ -43,15 +50,14 @@ export default function Page() {
                 </div>
               </div>
             </div>
-            {/*photo*/}
-            <RotatingCylinder images={images} />
-            <div className=""></div>
+            {/* photo */}
+            <div className="order-1 mb-10 xl:order-none xl:mb-0">
+              <Carousel slides={SLIDES} options={OPTIONS} />
+            </div>
+            <div></div>
           </div>
         </div>
-      </div>
-      <Stats />
-      <div className="bottom-0.5 mt-20">
-        <Footer />
+        <Stats />
       </div>
     </section>
   );

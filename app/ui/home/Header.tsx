@@ -5,23 +5,25 @@ import MobileNav from './MobileNav';
 
 const Header = () => {
   return (
-    <header className=" text-white dark:text-white xl:py-12">
-      <div className="mx-auto flex items-center justify-between px-10">
-        {/*logo*/}
-        <Link href="">
+    <header className="py-4 text-white xl:py-12">
+      <div className="mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-10">
+        {/* logo */}
+        <Link href="/">
           <h1 className="text-3xl font-semibold">
             IEEE CEK<span className="text-accent">.</span>
           </h1>
         </Link>
-        {/*Desktop Nav*/}
+        {/* Desktop Nav */}
         <div className="hidden items-center gap-8 xl:flex">
           <Nav />
-          <Link href="/contact">
+          <Link
+            href="https://www.ieee.org/membership/join/index.html?WT.mc_id=hc_join"
+            target="_blank"
+          >
             <Button>Join</Button>
           </Link>
         </div>
-
-        {/*Mobile Nav*/}
+        {/* Mobile Nav */}
         <div className="xl:hidden">
           <MobileNav />
         </div>
@@ -29,5 +31,4 @@ const Header = () => {
     </header>
   );
 };
-
 export default Header;

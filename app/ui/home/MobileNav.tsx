@@ -12,7 +12,7 @@ const links = [
   },
   {
     name: 'Execom',
-    path: '/execom',
+    path: '/execom/2023',
   },
   {
     name: 'Events',
@@ -34,7 +34,7 @@ const MobileNav = () => {
       </SheetTrigger>
       <SheetContent className="flex flex-col">
         {/*logo*/}
-        <div className="mb-40 mt-32 text-center text-2xl">
+        <div className="mb-20 mt-32 text-center text-2xl">
           <Link href="/">
             <h1 className="text-4xl font-semibold text-white">
               IEEE CEK<span className="text-accent">.</span>

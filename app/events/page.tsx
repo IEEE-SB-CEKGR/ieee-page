@@ -11,7 +11,6 @@ export default function Page() {
       <div className="mx-auto h-screen p-10">
         <UpcomingEvents />
       </div>
-      <Footer />
     </section>
   );
 }

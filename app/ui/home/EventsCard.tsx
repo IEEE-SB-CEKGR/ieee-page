@@ -32,7 +32,7 @@ const EventCard = (data: any) => {
         </a>
 
         <div className="flex items-center justify-between">
-          <span className="text-3xl font-bold text-gray-900 text-white">
+          <span className="text-3xl font-bold text-white">
             {data.event.fee == 0 ? 'Free' : `₹ ${data.event.fee}`}
           </span>
           <a

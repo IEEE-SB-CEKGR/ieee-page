@@ -1,24 +1,33 @@
 'use client';
-import { useState, useEffect, useRef, Suspense } from 'react';
-import Header from '@/app/ui/home/Header';
-import MemberCard from '@/app/ui/home/MemberCard';
-import { useRouter } from 'next/navigation';
-import MemberCardSkeleton from './MemberCardSkeleton';
 
-export default function Execom(data: any) {
+import { useState, useRef, useEffect, Suspense } from 'react';
+import { useRouter } from 'next/navigation';
+import MemberCardSkeleton from './MemberCardSkeleton'; // Ensure the path is correct
+import MemberCard from './MemberCard'; // Ensure the path is correct
+import Header from './Header'; // Ensure the path is correct
+
+export default function Execom({
+  members,
+  year,
+}: {
+  members: any;
+  year: string;
+}) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
 
-  console.log('execom page : ', data.members);
   const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
+    setIsDropdownOpen((prev) => !prev);
   };
 
   const handleClickOutside = (event: MouseEvent) => {
     if (
       dropdownRef.current &&
-      !dropdownRef.current.contains(event.target as Node)
+      !dropdownRef.current.contains(event.target as Node) &&
+      buttonRef.current &&
+      !buttonRef.current.contains(event.target as Node)
     ) {
       setIsDropdownOpen(false);
     }
@@ -38,20 +47,23 @@ export default function Execom(data: any) {
   }, []);
 
   return (
-    <section className="h-screen w-full bg-[#1c1c22] sm:w-screen">
+    <section className="min-h-screen w-full bg-[#1c1c22]">
       <Header />
-      <div className="mx-auto h-full w-full p-3">
+      <div className="mx-auto h-full w-full p-4 sm:p-10">
         <div className="relative z-20">
           <form>
             <button
               id="dropdownDefaultButton"
-              onClick={toggleDropdown}
-              className="ml-11 inline-flex items-center rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              ref={buttonRef}
+              onClick={(e) => {
+                e.preventDefault();
+                toggleDropdown();
+              }}
+              className="ml-4 inline-flex items-center rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 sm:ml-11"
               type="button"
               name="year"
-              defaultValue={data.year}
             >
-              {data.year}
+              {year}
               <svg
                 className="ms-3 h-2.5 w-2.5"
                 aria-hidden="true"
@@ -80,47 +92,22 @@ export default function Execom(data: any) {
               className="py-2 text-sm text-gray-700 dark:text-gray-200"
               aria-labelledby="dropdownDefaultButton"
             >
-              <li>
-                <a
-                  href="#"
-                  className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                  onClick={() => handleYearChange('2023')}
-                >
-                  2023
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                  onClick={() => handleYearChange('2022')}
-                >
-                  2022
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                  onClick={() => handleYearChange('2021')}
-                >
-                  2021
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                  onClick={() => handleYearChange('2020')}
-                >
-                  2020
-                </a>
-              </li>
+              {['2023', '2022', '2021', '2020'].map((yearOption) => (
+                <li key={yearOption}>
+                  <a
+                    href="#"
+                    className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                    onClick={() => handleYearChange(yearOption)}
+                  >
+                    {yearOption}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
-        <div className="mt-20 flex w-full flex-wrap justify-center gap-10">
-          {data.members.map((member: any, index: any) => (
+        <div className="mt-10 flex w-full flex-wrap justify-center gap-4 p-4 sm:gap-10 sm:p-10">
+          {members.map((member: any, index: any) => (
             <Suspense key={index} fallback={<MemberCardSkeleton />}>
               <MemberCard key={index} member={member} />
             </Suspense>
