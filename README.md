@@ -1,5 +1,7 @@
-## Next.js App Router Course - Starter
+# IEEE SB CEK WEBSITE
 
-This is the starter template for the Next.js App Router Course. It contains the starting code for the dashboard application.
+Development setup for IEEE SB CEK website.
 
-For more information, see the [course curriculum](https://nextjs.org/learn) on the Next.js Website.
+1. git clone https://github.com/retr0717/ieee-cek.git
+2. cd ieee-cek
+3. npm install
