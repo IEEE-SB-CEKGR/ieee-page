@@ -15,12 +15,17 @@ Development setup for IEEE SB CEK website.
     openssl rand -base64 32
     or
     npx auth secret
+   
 9.paste the generated auth secret as the value of the step 7
    NEXTAUTH=< generated key>
+   
 10.Run the command : npm i
+
 11.Run the command : npm run seed
+
 12.Run the command : npm run dev
    to start the dev server.
+   
 13.Create a different branch of the upcoming changes that you do.
    
  
