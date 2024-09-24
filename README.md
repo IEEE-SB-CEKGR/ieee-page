@@ -90,7 +90,3 @@ git checkout -b <branch-name>
 ## 🤝 Contributing
 
 We welcome contributions! Feel free to fork the repository, make your changes, and submit a pull request. Every bit of help counts! 💪
-
----
-
-Made with ❤️ by the IEEE SB CEK community
