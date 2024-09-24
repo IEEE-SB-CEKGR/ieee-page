@@ -13,8 +13,8 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | IEEE CEK DASHBOARD',
-    default: 'IEEE CEK Dashboard',
+    template: '%s | IEEE CE KGR',
+    default: 'IEEE CE KGR',
   },
   description: 'The official IEEE CEK students branch website.',
   metadataBase: new URL('https://next-learn-dashboard.vercel.sh'),
@@ -27,9 +27,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${jetbrainsMono.variable} small-scr antialiased`}>
+      <body className={`${jetbrainsMono.variable}small-scr antialiased`}>
         <PageTransition>{children}</PageTransition>
-
         <Footer />
       </body>
     </html>

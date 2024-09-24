@@ -31,23 +31,14 @@ export default function UpcomingEvents() {
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <span className="p-10 text-2xl font-medium text-white">
+      <span className="p-5 text-2xl font-medium text-white">
         Upcoming Events
       </span>
-      <div className="flex w-full flex-wrap items-center justify-center gap-4 p-4 xl:gap-10">
-        {events.length > 0 ? (
+      <div className="flex h-screen w-full flex-wrap items-center justify-center gap-10 p-5 xl:flex-row xl:pb-24 xl:pt-8">
+        {events ? (
           events.map((event: any) => (
             <Suspense key={event.id} fallback={'Loading'}>
-              <div
-                key={event.id}
-                className="cursor-pointer"
-                style={{
-                  flexBasis: '100%',
-                  maxWidth: 'calc(100% / 2 - 2rem)',
-                  aspectRatio: '1/1',
-                }}
-                onClick={() => handleEventClick(event)}
-              >
+              <div key={event.id} onClick={() => handleEventClick(event)}>
                 <EventCard event={event} />
               </div>
             </Suspense>
