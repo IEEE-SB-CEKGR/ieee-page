@@ -4,6 +4,7 @@ import { Metadata } from 'next';
 
 import PageTransition from './ui/home/PageTransition';
 import Footer from './ui/home/Footer';
+import LoaderTransition from './ui/home/Loader';
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
@@ -27,9 +28,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${jetbrainsMono.variable}small-scr antialiased`}>
-        <PageTransition>{children}</PageTransition>
-        <Footer />
+      <body className={`${jetbrainsMono.variable}  small-scr antialiased `}>
+        {/* Global transitions on the body */}
+        <LoaderTransition />
+        <PageTransition>
+          {/* Ensure transitions apply to child elements as well */}
+          {children}
+
+          <Footer key={'footer'} />
+        </PageTransition>
       </body>
     </html>
   );

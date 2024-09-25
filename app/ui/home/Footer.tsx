@@ -2,7 +2,7 @@
 
 export default function Footer() {
   return (
-    <footer className="bg-dark m-4 mt-auto rounded-lg text-white shadow dark:bg-gray-900">
+    <footer className="bg-dark m-4 mt-auto w-full rounded-lg text-white shadow dark:bg-gray-900">
       <div className="mx-auto w-full max-w-screen-xl p-4 md:py-8">
         <div className="sm:flex sm:items-center sm:justify-between">
           <ul className="mb-6 flex flex-wrap items-center text-sm font-medium text-gray-400 dark:text-gray-400 sm:mb-0">
