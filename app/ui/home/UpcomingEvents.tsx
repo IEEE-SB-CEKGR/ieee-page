@@ -3,11 +3,12 @@ import { useState, useEffect, Suspense } from 'react';
 import { fetchUpcomingEventsAction } from '@/app/lib/actions';
 import EventCard from '@/app/ui/home/EventsCard';
 import EventModal from '@/app/ui/home/EventModal';
-import { EventSkeleton } from '../skeletons';
+import { UpcomingEventsSkeleton } from '../skeletons';
 
 export default function UpcomingEvents() {
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isLoading, setIsLoading] = useState(true); // To manage loading state
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -15,6 +16,7 @@ export default function UpcomingEvents() {
       console.log('upcoming data : ', data);
       if (data) {
         setEvents(data);
+        setIsLoading(false); // Set loading to false once events are fetched
       }
     };
 
@@ -30,26 +32,33 @@ export default function UpcomingEvents() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center">
-      <span className="p-5 text-2xl font-medium text-white">
+    <div className="w-full">
+      <h3 className="mt-10 text-center text-2xl font-bold text-white">
         Upcoming Events
-      </span>
-      <div className="flex h-screen w-full flex-wrap items-center justify-center gap-10 p-5 xl:flex-row xl:pb-24 xl:pt-8">
-        {events ? (
-          events.map((event: any) => (
-            <Suspense key={event.id} fallback={'Loading'}>
-              <div key={event.id} onClick={() => handleEventClick(event)}>
-                <EventCard event={event} />
-              </div>
-            </Suspense>
-          ))
-        ) : (
-          <span className="text-white">No Upcoming Events</span>
+      </h3>
+      <div className="flex flex-col items-center justify-center">
+        {/* Container for the event cards with fixed height and scrollable content */}
+        <div className="relative flex h-[80vh] w-full flex-wrap justify-center gap-4 overflow-y-auto scroll-smooth p-4 sm:gap-10 sm:p-10">
+          {isLoading
+            ? Array.from({ length: 5 }).map((_, index) => (
+                <UpcomingEventsSkeleton key={index} />
+              ))
+            : events.map((event: any) => (
+                <Suspense key={event.id} fallback={<UpcomingEventsSkeleton />}>
+                  <div
+                    key={event.id}
+                    onClick={() => handleEventClick(event)}
+                    className="animate-fade-in opacity-0 transition-opacity duration-500 ease-in-out"
+                  >
+                    <EventCard event={event} />
+                  </div>
+                </Suspense>
+              ))}
+        </div>
+        {selectedEvent && (
+          <EventModal event={selectedEvent} onClose={handleCloseModal} />
         )}
       </div>
-      {selectedEvent && (
-        <EventModal event={selectedEvent} onClose={handleCloseModal} />
-      )}
     </div>
   );
 }

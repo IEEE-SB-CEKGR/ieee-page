@@ -23,15 +23,18 @@ export default function EventModal({ event, onClose }: EventModalProps) {
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 flex w-full items-center justify-center bg-black"
+      className="fixed inset-0 z-50 flex w-full flex-wrap items-center justify-center bg-black bg-opacity-50 px-6"
     >
-      <div className="bg-dark  mem-border-color relative w-full max-w-md transform rounded-lg border p-6 text-white shadow-lg transition duration-300 ease-in-out motion-safe:hover:scale-105">
+      <div
+        className="relative w-full max-w-2xl transform overflow-hidden rounded-lg border bg-gray-800 p-6 text-white shadow-lg transition duration-300 ease-in-out motion-safe:hover:scale-105 sm:max-w-md"
+        onClick={(e) => e.stopPropagation()} // Prevent modal close on inner click
+      >
         <button
           type="button"
           onClick={onClose}
-          className="bg-dark absolute right-2 top-2 rounded-md p-2  text-red-600 hover:bg-gray-800 hover:text-red-800 focus:text-accent focus:outline-none focus:ring-2 focus:ring-inset"
+          className="absolute right-2 top-2 rounded-md p-2 text-red-600 hover:bg-gray-700 hover:text-red-800 focus:text-accent focus:outline-none focus:ring-2 focus:ring-inset"
         >
-          <span className="sr-only">Close menu</span>
+          <span className="sr-only">Close modal</span>
           <svg
             className="h-6 w-6"
             xmlns="http://www.w3.org/2000/svg"
@@ -41,44 +44,50 @@ export default function EventModal({ event, onClose }: EventModalProps) {
             aria-hidden="true"
           >
             <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
               d="M6 18L18 6M6 6l12 12"
             />
           </svg>
-        </button>{' '}
+        </button>
+
         <Image
-          className="rounded-t-lg p-8"
+          className="mx-auto mb-4 rounded-t-lg"
           src={event.image_url}
-          alt="product image"
+          alt="event image"
           width={600}
-          height={600}
+          height={400}
+          layout="responsive" // Makes the image responsive
         />
-        <h2 className="mb-4 text-2xl font-bold tracking-tight text-white">
+
+        <h2 className="mb-4 text-center text-2xl font-bold tracking-tight text-white">
           {event.name}
         </h2>
-        <p className="mb-2 text-sm font-semibold tracking-tight text-white">
+        <p className="mb-2 text-sm font-semibold">
           <strong>Date:</strong> {event.date}
         </p>
-        <p className="mb-2 text-sm font-semibold tracking-tight text-white">
-          <strong>Time : </strong> {event.time}
+        <p className="mb-2 text-sm font-semibold">
+          <strong>Time:</strong> {event.time}
         </p>
-        <p className="mb-2 text-sm font-semibold tracking-tight text-white">
-          <strong>Venue : </strong> {event.venue}
+        <p className="mb-2 text-sm font-semibold">
+          <strong>Venue:</strong> {event.venue}
         </p>
-        <p className="mb-2 text-sm font-semibold tracking-tight text-white">
-          <strong>Mode : </strong> {event.mode}
+        <p className="mb-2 text-sm font-semibold">
+          <strong>Mode:</strong> {event.mode}
         </p>
-        <p className="mb-2 text-sm font-semibold tracking-tight text-white">
-          <strong>Fee : </strong> {event.fee}
+        <p className="mb-2 text-sm font-semibold">
+          <strong>Fee:</strong> {event.fee === 0 ? 'Free' : `₹ ${event.fee}`}
         </p>
         <p className="mb-4 text-sm">
-          <strong>Description : </strong> {event.description}
+          <strong>Description:</strong> {event.description}
         </p>
+
         <a
           href={event.link}
-          className="rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
           Register
         </a>

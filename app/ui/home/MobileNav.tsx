@@ -36,8 +36,8 @@ const MobileNav = () => {
         {/*logo*/}
         <div className="mb-20 mt-32 text-center text-2xl">
           <Link href="/">
-            <h1 className="text-4xl font-semibold text-white">
-              IEEE CEK<span className="text-accent">.</span>
+            <h1 className="border-y-2 border-accent text-4xl font-semibold text-white">
+              IEEE SB CE KGR<span className="text-accent"></span>
             </h1>
           </Link>
         </div>
@@ -47,7 +47,7 @@ const MobileNav = () => {
             <Link
               href={link.path}
               key={index}
-              className={`${link.path === pathnaname && 'border-b-2 border-accent'} text-xl capitalize text-white transition-all  hover:text-accent`}
+              className={`${link.path === pathnaname && 'border-2 border-accent p-1 px-3'} text-xl capitalize text-white transition-all  hover:text-accent`}
             >
               {link.name}
             </Link>

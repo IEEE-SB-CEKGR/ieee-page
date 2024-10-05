@@ -9,8 +9,8 @@ const Header = () => {
       <div className="mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-10">
         {/* logo */}
         <Link href="/">
-          <h1 className="rounded-sm text-3xl  font-semibold animate-in">
-            IEEE CE KGR
+          <h1 className="rounded-sm border-y-4 border-accent text-3xl font-semibold animate-in">
+            IEEE SB CE KGR
           </h1>
         </Link>
         {/* Desktop Nav */}

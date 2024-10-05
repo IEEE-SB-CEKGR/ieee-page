@@ -31,7 +31,7 @@ const config: Config = {
           500: '#0070F3',
           600: '#2F6FEB',
         },
-        primary: '#1c1c22',
+        primary: '#282828',
         accent: {
           DEFAULT: '#0EA5C8',
           hover: '#2E8BC0',

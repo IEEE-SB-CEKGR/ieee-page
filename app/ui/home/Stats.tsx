@@ -7,8 +7,8 @@ import { date } from 'zod';
 
 const stats = [
   { number: 30, text: 'Events Hosted' },
-  { number: 8, text: 'Student Members' },
-  { number: 10, text: 'Execom Members' },
+  { number: 20, text: 'Student Members' },
+  { number: 20, text: 'Execom Members' },
 ];
 
 const Stats = () => {
@@ -23,7 +23,7 @@ const Stats = () => {
 
   return (
     <section className="container">
-      <div className="containermx-auto px-10">
+      <div className="container mx-auto px-0">
         <div className="mx-auto flex max-w-[80vw] flex-wrap gap-6 xl:max-w-none">
           {stats.map(
             (item: { number: number; text: string }, index: number) => {
@@ -39,7 +39,7 @@ const Stats = () => {
                     className="text-4xl font-extrabold text-white xl:text-6xl"
                   />
                   <p
-                    className={`${item.text.length < 15 ? 'max-w-[100px]' : 'max-w-[150px]'} leading-snug text-white/80`}
+                    className={`${item.text.length < 16 ? 'max-w-[100px]' : 'max-w-[150px]'} leading-snug text-white/80`}
                   >
                     {item.text}
                   </p>

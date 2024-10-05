@@ -59,22 +59,39 @@ export function EventSkeleton() {
   );
 }
 
+export const MemberCardSkeleton = () => {
+  return (
+    <div className="bg-dark mem-border-color w-full max-w-sm transform animate-pulse rounded-lg border motion-safe:hover:scale-105">
+      <div className="flex justify-end px-4 pt-4"></div>
+      <div className="flex flex-col items-center pb-10">
+        <div className="mb-3 h-40 w-40 rounded-full bg-gray-300"></div>
+        <div className="mb-1 h-6 w-24 bg-gray-300"></div>
+        <div className="h-4 w-16 bg-gray-300"></div>
+      </div>
+    </div>
+  );
+};
+
 export function UpcomingEventsSkeleton() {
   return (
-    <div
-      className={`${shimmer} relative flex w-full flex-col overflow-hidden md:col-span-4`}
-    >
-      <div className="mb-4 h-8 w-36 rounded-md bg-gray-100" />
-      <div className="flex grow flex-col justify-between rounded-xl bg-gray-100 p-4">
-        <div className="bg-white px-6">
-          <EventSkeleton />
-          <EventSkeleton />
-          <EventSkeleton />
-          <EventSkeleton />
-          <EventSkeleton />
-          <div className="flex items-center pb-2 pt-6">
-            <div className="h-5 w-5 rounded-full bg-gray-200" />
-            <div className="ml-2 h-4 w-20 rounded-md bg-gray-200" />
+    <div className="bg-dark mem-border-color w-full max-w-sm transform rounded-lg border shadow transition duration-300 ease-in-out">
+      <div className="animate-pulse">
+        {/* Image Skeleton */}
+        <div className="h-64 w-full rounded-t-lg bg-gray-700"></div>
+
+        <div className="px-10 pb-5">
+          {/* Title Skeleton */}
+          <div className="my-4 h-6 w-3/4 rounded bg-gray-700"></div>
+          {/* Date Skeleton */}
+          <div className="mb-4 h-4 w-1/2 rounded bg-gray-700"></div>
+          {/* Time Skeleton */}
+          <div className="mb-4 h-4 w-1/3 rounded bg-gray-700"></div>
+
+          <div className="flex items-center justify-between">
+            {/* Fee Skeleton */}
+            <div className="h-6 w-20 rounded bg-gray-700"></div>
+            {/* Button Skeleton */}
+            <div className="h-10 w-24 rounded-lg bg-gray-700"></div>
           </div>
         </div>
       </div>

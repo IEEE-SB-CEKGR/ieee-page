@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 const EventCard = (data: any) => {
   return (
-    <div className="bg-dark mem-border-color w-full max-w-sm transform rounded-lg border shadow transition  duration-300 ease-in-out motion-safe:hover:scale-105 dark:bg-gray-800">
+    <div className="bg-dark mem-border-color w-full max-w-sm transform rounded-lg border shadow transition  duration-300 ease-in-out motion-safe:hover:scale-105 ">
       <a className="cursor-pointer">
         <Image
           className="rounded-t-lg p-8"

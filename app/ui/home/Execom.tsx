@@ -2,9 +2,8 @@
 
 import { useState, useRef, useEffect, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
-import MemberCardSkeleton from './MemberCardSkeleton'; // Ensure the path is correct
+import { MemberCardSkeleton } from '@/app/ui/skeletons'; // Ensure the path is correct
 import MemberCard from './MemberCard'; // Ensure the path is correct
-import Header from './Header'; // Ensure the path is correct
 
 export default function Execom({
   members,
@@ -14,6 +13,7 @@ export default function Execom({
   year: string;
 }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Add a loading state
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
@@ -41,14 +41,23 @@ export default function Execom({
 
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
+
+    // Simulate a fetch call for members
+    const fetchMembers = async () => {
+      // Simulate a delay to fetch the members (you would replace this with your actual data fetching logic)
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      setIsLoading(false); // Data has been fetched, set loading to false
+    };
+
+    fetchMembers(); // Fetch the members
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
 
   return (
-    <section className="min-h-screen w-full bg-[#1c1c22]">
-      <Header />
+    <section className="min-h-screen w-full">
       <div className="mx-auto h-full w-full p-4 sm:p-10">
         <div className="relative z-20">
           <form>
@@ -107,11 +116,16 @@ export default function Execom({
           </div>
         </div>
         <div className="mt-10 flex w-full flex-wrap justify-center gap-4 p-4 sm:gap-10 sm:p-10">
-          {members.map((member: any, index: any) => (
-            <Suspense key={index} fallback={<MemberCardSkeleton />}>
-              <MemberCard key={index} member={member} />
-            </Suspense>
-          ))}
+          {isLoading
+            ? // Show skeletons while loading
+              Array.from({ length: 6 }).map((_, index) => (
+                <MemberCardSkeleton key={index} />
+              ))
+            : members.map((member: any, index: any) => (
+                <Suspense key={index} fallback={<MemberCardSkeleton />}>
+                  <MemberCard key={index} member={member} />
+                </Suspense>
+              ))}
         </div>
       </div>
     </section>

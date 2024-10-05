@@ -6,8 +6,7 @@ import Footer from '../ui/home/Footer';
 
 export default function Page() {
   return (
-    <main className="flex min-h-screen flex-col bg-[#1c1c22]">
-      <Header />
+    <main className="flex min-h-screen flex-col">
       <div className="flex-grow p-4 sm:p-10">
         <AboutPage />
       </div>

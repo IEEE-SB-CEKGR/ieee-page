@@ -12,7 +12,7 @@ export default async function Page({ params }: { params: { year: string } }) {
   }
 
   return (
-    <main className="flex min-h-screen flex-col bg-[#1c1c22]">
+    <main className="flex min-h-screen flex-col ">
       <div className="flex-grow">
         <Execom members={members} year={year} />
       </div>
