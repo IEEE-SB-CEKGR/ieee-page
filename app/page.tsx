@@ -322,24 +322,29 @@ export default function Page() {
 
             {/* Image Column with Tilt Effect */}
             <motion.div 
-              className="order-first lg:order-last"
+              className="order-first lg:order-last h-full flex items-center justify-center w-full"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.7, ease: "easeOut" }}
               style={{ y: useTransform(scrollYProgress, [0, 1], [0, -100]), scale }}
             >
-              <TiltCard className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
-                <HeroCarousel images={images} options={OPTIONS} />
-                
-                {/* Floating badges */}
-                <motion.div
-                  className="absolute top-5 right-5 bg-black/50 backdrop-blur-md px-3 py-2 rounded-full text-white text-xs font-medium border border-white/10"
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1.2, duration: 0.6 }}
-                >
-                  Est. 2010
-                </motion.div>
+              <TiltCard className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl w-full">
+                <div className="w-full">
+                  {/* Explicitly set height with aspect ratio */}
+                  <div className="w-full h-[300px] sm:h-[400px] md:h-[450px] lg:h-[500px]">
+                    <HeroCarousel images={images} options={OPTIONS} />
+                  </div>
+                  
+                  {/* Floating badges */}
+                  <motion.div
+                    className="absolute top-5 right-5 bg-black/50 backdrop-blur-md px-3 py-2 rounded-full text-white text-xs font-medium border border-white/10"
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.2, duration: 0.6 }}
+                  >
+                    Est. 2010
+                  </motion.div>
+                </div>
               </TiltCard>
             </motion.div>
           </div>

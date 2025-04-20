@@ -48,34 +48,30 @@ export default function HeroCarousel({ images, options }: HeroCarouselProps) {
   }, [emblaApi, onSelect]);
 
   return (
-    <div className="relative overflow-hidden">
-      <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex">
-          {images.map((src, index) => (
-            <motion.div 
-              key={index} 
-              className="relative flex-[0_0_100%] min-w-0 overflow-hidden"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: index * 0.2, duration: 0.5 }}
-            >
-              <div className="pt-[56.25%] relative">
-                <Image
-                  src={src}
-                  alt={`IEEE event ${index + 1}`}
-                  fill
-                  className="absolute inset-0 object-cover rounded-lg"
-                  priority={index === 0}
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
+    <div className="relative w-full h-full">
+      <div className="embla w-full h-full">
+        <div className="embla__viewport w-full h-full overflow-hidden" ref={emblaRef}>
+          <div className="embla__container h-full flex">
+            {images.map((src, index) => (
+              <div className="embla__slide min-w-full relative" key={index}>
+                <div className="embla__slide__inner relative w-full h-full">
+                  <Image
+                    src={src}
+                    alt={`Slide ${index + 1}`}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover rounded-xl"
+                    priority={index === 0}
+                  />
+                </div>
               </div>
-            </motion.div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
       
       {/* Navigation dots */}
-      <div className="absolute bottom-4 left-0 right-0">
+      <div className="absolute bottom-4 left-0 right-0 z-10">
         <div className="flex justify-center gap-2">
           {scrollSnaps.map((_, index) => (
             <motion.button
