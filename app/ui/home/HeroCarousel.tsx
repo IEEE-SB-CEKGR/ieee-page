@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import useEmblaCarousel, { EmblaOptionsType } from 'embla-carousel-react';
+import useEmblaCarousel from 'embla-carousel-react';
+import type { EmblaOptionsType } from 'embla-carousel';
 import Image from 'next/image';
 
 type HeroCarouselProps = {

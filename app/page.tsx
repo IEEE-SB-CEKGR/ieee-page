@@ -5,7 +5,7 @@ import Social from '@/app/ui/home/Social';
 import Stats from '@/app/ui/home/Stats';
 import '@/app/ui/global.css';
 import HeroCarousel from './ui/home/HeroCarousel';
-import { EmblaOptionsType } from 'embla-carousel-react';
+import { EmblaOptionsType } from 'embla-carousel';
 import { useInView } from 'framer-motion';
 import { useRef } from 'react';
 import Link from 'next/link';
