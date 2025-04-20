@@ -19,10 +19,10 @@ import TypewriterReveal from '@/app/ui/home/TypewriterReveal';
 import CircuitText from '@/app/ui/home/CircuitText';
 
 const images = [
-  '/globe/home1.jpg',
-  '/globe/home2.jpg',
-  '/globe/home3.jpg',
-  '/globe/home4.jpg',
+  'https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=1920&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=1920&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1920&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1581093588401-fbb62a02f120?q=80&w=1920&auto=format&fit=crop'
 ];
 
 const OPTIONS: EmblaOptionsType = { 
@@ -48,10 +48,12 @@ export default function Page() {
   const statsRef = useRef(null);
   const eventsRef = useRef(null);
   const aboutRef = useRef(null);
+  const achievementsRef = useRef(null);
   
   const isStatsInView = useInView(statsRef, { once: true, amount: 0.3 });
   const isEventsInView = useInView(eventsRef, { once: true, amount: 0.2 });
   const isAboutInView = useInView(aboutRef, { once: true, amount: 0.2 });
+  const isAchievementsInView = useInView(achievementsRef, { once: true, amount: 0.2 });
   
   const heroRef = useRef(null);
   
@@ -521,19 +523,19 @@ export default function Page() {
               { 
                 title: "Tech Symposium 2025",
                 date: "May 15, 2025",
-                image: "/globe/home1.jpg",
+                image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1920&auto=format&fit=crop",
                 tag: "Conference"
               },
               { 
                 title: "Workshop on AI & ML",
                 date: "June 10, 2025",
-                image: "/globe/home2.jpg",
+                image: "https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?q=80&w=1920&auto=format&fit=crop",
                 tag: "Workshop"
               },
               { 
                 title: "Robotics Competition",
                 date: "July 22, 2025",
-                image: "/globe/home3.jpg",
+                image: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?q=80&w=1920&auto=format&fit=crop",
                 tag: "Contest"
               }
             ].map((event, index) => (
@@ -575,6 +577,180 @@ export default function Page() {
               </TiltCard>
             ))}
           </div>
+        </div>
+      </AnimatedSection>
+
+      {/* Achievements Section */}
+      <AnimatedSection 
+        ref={achievementsRef}
+        className="py-16 md:py-28 relative overflow-hidden bg-gradient-to-b from-transparent to-[#081630]"
+        delay={0.2}
+      >
+        {/* Background Decorative Elements */}
+        <motion.div 
+          className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-accent/5 blur-[120px]"
+          animate={{ 
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3] 
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div 
+          className="absolute bottom-0 right-0 w-1/3 h-1/2 bg-blue-900/10 -skew-x-12 -z-10 blur-3xl" 
+        />
+        
+        <div className="container mx-auto px-4">
+          <div className="mb-16 text-center max-w-3xl mx-auto">
+            <motion.h2 
+              className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-white via-white to-white/80 bg-clip-text text-transparent mb-6"
+              initial={{ opacity: 0, y: -20 }}
+              animate={isAchievementsInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.2 }}
+            >
+              Our Notable Achievements
+            </motion.h2>
+            
+            <motion.div 
+              className="w-20 h-1 bg-accent mx-auto mb-6"
+              initial={{ width: 0 }}
+              animate={isAchievementsInView ? { width: 80 } : {}}
+              transition={{ delay: 0.4, duration: 0.8 }}
+            />
+            
+            <motion.p
+              className="text-white/70 text-lg"
+              initial={{ opacity: 0 }}
+              animate={isAchievementsInView ? { opacity: 1 } : {}}
+              transition={{ delay: 0.5 }}
+            >
+              Celebrating excellence and innovation throughout our journey
+            </motion.p>
+          </div>
+          
+          {/* Achievement Cards with Timeline */}
+          <div className="relative">
+            {/* Vertical Timeline Line - made thinner and adjusted z-index */}
+            <motion.div 
+              className="absolute left-[50%] top-0 bottom-0 w-0.5 bg-gradient-to-b from-accent/70 via-accent/40 to-accent/10 hidden md:block z-0"
+              initial={{ height: 0 }}
+              animate={isAchievementsInView ? { height: "100%" } : {}}
+              transition={{ duration: 1.5, ease: "easeOut" }}
+            />
+            
+            <div className="space-y-16 md:space-y-32">
+              {[
+                {
+                  year: "2024",
+                  title: "Best Student Branch Award",
+                  description: "Recognized as the best IEEE student branch in the region for outstanding technical events and community engagement.",
+                  image: "https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?q=80&w=1920&auto=format&fit=crop",
+                  isLeft: true
+                },
+                {
+                  year: "2023",
+                  title: "Innovation Challenge Winners",
+                  description: "Won first place in the IEEE Innovation Challenge with our sustainable energy solution project that aids rural communities.",
+                  image: "https://images.unsplash.com/photo-1581091226033-c6e0f73f84b8?q=80&w=1920&auto=format&fit=crop",
+                  isLeft: false
+                },
+                {
+                  year: "2022",
+                  title: "Record Membership Growth",
+                  description: "Successfully grew our chapter membership by 150% through engaging activities, workshops and valuable networking opportunities.",
+                  image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1920&auto=format&fit=crop",
+                  isLeft: true
+                }
+              ].map((achievement, index) => (
+                <motion.div 
+                  key={achievement.title}
+                  className={`flex flex-col ${achievement.isLeft ? 'md:flex-row' : 'md:flex-row-reverse'} items-center gap-8 md:gap-16`}
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={isAchievementsInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ delay: 0.2 + index * 0.2, duration: 0.7 }}
+                >
+                  {/* Timeline Node - improved z-index and position */}
+                  <div className="hidden md:block absolute left-[50%] w-6 h-6 -ml-3 rounded-full border-2 border-accent bg-[#081630] z-10" />
+                  
+                  {/* Image Side - reduced width to create more space */}
+                  <div className="w-full md:w-[45%]">
+                    <TiltCard className="overflow-hidden rounded-xl border border-white/10 shadow-xl">
+                      <div className="relative h-60 w-full overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#081630] to-transparent opacity-60 z-10" />
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          transition={{ duration: 0.6 }}
+                          className="w-full h-full"
+                        >
+                          <Image 
+                            src={achievement.image || "/globe/home1.jpg"} 
+                            alt={achievement.title}
+                            fill
+                            className="object-cover"
+                          />
+                        </motion.div>
+                        <div className="absolute top-4 left-4 z-20">
+                          <span className="px-4 py-1 bg-accent text-primary text-sm font-medium rounded-full">
+                            {achievement.year}
+                          </span>
+                        </div>
+                      </div>
+                    </TiltCard>
+                  </div>
+                  
+                  {/* Content Side - reduced width and added proper padding */}
+                  <div className="w-full md:w-[45%] text-center md:text-left">
+                    <motion.div 
+                      className="p-6 md:p-0 md:px-4"
+                      whileHover={{ x: achievement.isLeft ? 10 : -10 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    >
+                      <h3 className="text-2xl font-bold text-white mb-4">{achievement.title}</h3>
+                      <p className="text-white/70 leading-relaxed">{achievement.description}</p>
+                      
+                      <motion.div 
+                        className="mt-6 inline-block"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <Link href="/about" className="text-accent font-medium flex items-center gap-2 group">
+                          Read More 
+                          <motion.span
+                            animate={{ x: [0, 5, 0] }}
+                            transition={{ 
+                              duration: 1.5, 
+                              repeat: Infinity, 
+                              repeatDelay: 1 
+                            }}
+                          >
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                          </motion.span>
+                        </Link>
+                      </motion.div>
+                    </motion.div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+          
+          {/* View All Button */}
+          <motion.div 
+            className="mt-16 text-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={isAchievementsInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: 0.8 }}
+          >
+            <Link href="/about">
+              <motion.button
+                className="px-8 py-3 bg-accent/10 border border-accent/30 text-accent rounded-lg hover:bg-accent hover:text-primary transition-all duration-300 flex items-center gap-2 mx-auto"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                View All Achievements
+                <ArrowRight className="w-4 h-4" />
+              </motion.button>
+            </Link>
+          </motion.div>
         </div>
       </AnimatedSection>
     </main>
