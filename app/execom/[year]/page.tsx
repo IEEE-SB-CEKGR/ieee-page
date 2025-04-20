@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 import { filterMembersOnYear } from '@/app/lib/actions';
-import Execom from '@/app/ui/home/Execom';
-import Footer from '@/app/ui/home/Footer';
+import Execom from '@/app/ui/home/Execom/index';
 
 export default async function Page({ params }: { params: { year: string } }) {
   const year = params.year;
@@ -12,10 +11,8 @@ export default async function Page({ params }: { params: { year: string } }) {
   }
 
   return (
-    <main className="flex min-h-screen flex-col ">
-      <div className="flex-grow">
-        <Execom members={members} year={year} />
-      </div>
+    <main className="flex min-h-screen flex-col bg-gradient-to-b to-blue-50 dark:from-gray-900 dark:to-gray-800">
+      <Execom members={members} year={year} />
     </main>
   );
 }

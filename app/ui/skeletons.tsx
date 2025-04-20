@@ -1,20 +1,44 @@
+'use client';
+
+import { motion } from 'framer-motion';
+
 // Loading animation
 const shimmer =
   'before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/60 before:to-transparent';
 
 export function CardSkeleton() {
   return (
-    <div
-      className={`${shimmer} relative overflow-hidden rounded-xl bg-gray-100 p-2 shadow-sm`}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="relative overflow-hidden rounded-xl bg-gray-800 p-2 shadow-md border border-gray-700"
     >
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-900/10 to-transparent"
+        animate={{ x: ["-100%", "100%"] }}
+        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+      />
       <div className="flex p-4">
-        <div className="h-5 w-5 rounded-md bg-gray-200" />
-        <div className="ml-2 h-6 w-16 rounded-md bg-gray-200 text-sm font-medium" />
+        <motion.div 
+          className="h-5 w-5 rounded-md bg-gray-700"
+          animate={{ opacity: [0.5, 0.7, 0.5] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        />
+        <motion.div 
+          className="ml-2 h-6 w-16 rounded-md bg-gray-700 text-sm font-medium"
+          animate={{ opacity: [0.6, 0.8, 0.6] }}
+          transition={{ duration: 2, repeat: Infinity, delay: 0.2 }}
+        />
       </div>
-      <div className="flex items-center justify-center truncate rounded-xl bg-white px-4 py-8">
-        <div className="h-7 w-20 rounded-md bg-gray-200" />
+      <div className="flex items-center justify-center truncate rounded-xl bg-gray-900 px-4 py-8">
+        <motion.div 
+          className="h-7 w-20 rounded-md bg-gray-700"
+          animate={{ opacity: [0.5, 0.7, 0.5], width: ["60%", "70%", "60%"] }}
+          transition={{ duration: 2.5, repeat: Infinity }}
+        />
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -59,18 +83,144 @@ export function EventSkeleton() {
   );
 }
 
-export const MemberCardSkeleton = () => {
+export function MemberCardSkeleton() {
   return (
-    <div className="bg-dark mem-border-color w-full max-w-sm transform animate-pulse rounded-lg border motion-safe:hover:scale-105">
-      <div className="flex justify-end px-4 pt-4"></div>
-      <div className="flex flex-col items-center pb-10">
-        <div className="mb-3 h-40 w-40 rounded-full bg-gray-300"></div>
-        <div className="mb-1 h-6 w-24 bg-gray-300"></div>
-        <div className="h-4 w-16 bg-gray-300"></div>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.96 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5 }}
+      className="relative w-72 h-96 rounded-2xl overflow-hidden bg-gradient-to-b from-gray-800 via-gray-850 to-black border border-gray-700 shadow-xl"
+    >
+      {/* Animated shimmer effect */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-600/10 to-transparent z-10"
+        animate={{
+          x: ["-100%", "100%"],
+        }}
+        transition={{
+          duration: 1.8,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        style={{
+          backgroundSize: "200% 100%",
+        }}
+      />
+      
+      {/* Background glow effect */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-r from-blue-900/5 to-cyan-900/5"
+        animate={{ 
+          opacity: [0.3, 0.15, 0.3] 
+        }}
+        transition={{
+          duration: 3,
+          repeat: Infinity,
+          repeatType: "reverse"
+        }}
+      />
+      
+      {/* Circular image placeholder with pulse animation */}
+      <div className="px-6 pt-8 pb-6 flex flex-col items-center">
+        <motion.div 
+          className="relative rounded-full mb-6 p-1"
+          animate={{
+            boxShadow: [
+              "0 0 0 0 rgba(14, 165, 200, 0)",
+              "0 0 0 4px rgba(14, 165, 200, 0.3)",
+              "0 0 0 0 rgba(14, 165, 200, 0)"
+            ]
+          }}
+          transition={{ 
+            duration: 2.5, 
+            repeat: Infinity,
+            repeatType: "loop" 
+          }}
+        >
+          <div className="bg-gradient-to-r from-blue-600/30 to-cyan-500/30 p-1 rounded-full">
+            <motion.div 
+              className="rounded-full overflow-hidden h-40 w-40 bg-gray-800"
+              animate={{ 
+                backgroundColor: ["#1f2937", "#1a2332", "#1f2937"] 
+              }}
+              transition={{ 
+                duration: 3,
+                repeat: Infinity,
+                repeatType: "reverse"
+              }}
+            />
+          </div>
+        </motion.div>
+        
+        {/* Content placeholders with staggered animations */}
+        <div className="text-center w-full z-20">
+          <motion.div 
+            className="h-6 w-32 mx-auto bg-gradient-to-r from-gray-700/80 to-gray-600/80 rounded mb-3"
+            animate={{ 
+              opacity: [0.7, 0.5, 0.7],
+              width: ["60%", "70%", "60%"]
+            }}
+            transition={{ 
+              duration: 2,
+              repeat: Infinity,
+              repeatType: "mirror"
+            }}
+          />
+          
+          <motion.div 
+            className="h-4 w-24 mx-auto bg-gradient-to-r from-blue-800/40 to-cyan-800/40 rounded mb-6"
+            animate={{ opacity: [0.6, 0.4, 0.6] }}
+            transition={{ 
+              duration: 2.5,
+              delay: 0.2,
+              repeat: Infinity,
+              repeatType: "mirror"
+            }}
+          />
+          
+          <motion.div 
+            className="flex justify-center space-x-4 mt-4"
+            initial={{ opacity: 0.4 }}
+            animate={{ opacity: 0.7 }}
+            transition={{ duration: 1, repeat: Infinity, repeatType: "reverse" }}
+          >
+            {[1, 2, 3].map((i) => (
+              <motion.div 
+                key={i}
+                className="h-5 w-5 bg-gradient-to-br from-blue-700/30 to-cyan-600/30 rounded-full"
+                animate={{ 
+                  scale: [0.9, 1.1, 0.9],
+                  opacity: [0.5, 0.7, 0.5]
+                }}
+                transition={{ 
+                  duration: 2,
+                  delay: i * 0.3,
+                  repeat: Infinity,
+                  repeatType: "loop"
+                }}
+              />
+            ))}
+          </motion.div>
+        </div>
       </div>
-    </div>
+      
+      {/* Animated decorative bottom bar */}
+      <motion.div 
+        className="h-2 mx-auto bg-gradient-to-r from-blue-600/40 to-cyan-400/40 rounded-full"
+        initial={{ width: "20%" }}
+        animate={{ 
+          width: ["30%", "50%", "30%"],
+          opacity: [0.6, 0.9, 0.6]
+        }}
+        transition={{ 
+          duration: 2.5, 
+          repeat: Infinity,
+          repeatType: "mirror"
+        }}
+      />
+    </motion.div>
   );
-};
+}
 
 export function UpcomingEventsSkeleton() {
   return (
