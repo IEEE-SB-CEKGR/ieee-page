@@ -14,7 +14,7 @@ export default function ExecomHeader({ year }: { year: string }) {
       >
         <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-400">
-            Executive Committee
+            EXECOM 
           </span>
         </h1>
       </motion.div>

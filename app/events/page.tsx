@@ -315,7 +315,7 @@ export default function EventsPage() {
                       className="cursor-pointer"
                       layout
                     >
-                      <TiltCard className="h-full" glareEffect={true}>
+                      <TiltCard className="h-full">
                         <motion.div 
                           className="h-full rounded-xl overflow-hidden bg-white/5 border border-white/10 hover:border-accent/30 transition-all duration-300"
                           variants={cardHover}
