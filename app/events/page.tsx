@@ -8,7 +8,6 @@ import { fetchUpcomingEventsAction } from '@/app/lib/actions';
 import EventModal from '@/app/ui/home/EventModal';
 import { UpcomingEventsSkeleton } from '@/app/ui/skeletons';
 import PageTransition from '@/app/ui/home/PageTransition';
-import AnimatedSection from '@/app/ui/home/AnimatedSection';
 import TiltCard from '@/app/ui/home/TiltCard';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -148,12 +147,12 @@ export default function EventsPage() {
         {/* Header Section - Search only */}
         <div className="relative border-b border-white/5 backdrop-blur-sm py-8 mt-16">
           <motion.div 
-            className="container mx-auto px-4 flex justify-center items-center"
+            className="container mx-auto px-4 sm:px-6 flex justify-center items-center"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            {/* Enhanced search bar - centered */}
+            {/* Enhanced search bar - centered and responsive */}
             <motion.div 
               className="relative w-full max-w-md"
               initial={{ opacity: 0 }}
@@ -213,10 +212,10 @@ export default function EventsPage() {
 
         {/* Filters Section */}
         <div className="py-4 border-b border-white/5">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-wrap justify-between items-center gap-4">
+          <div className="container mx-auto px-4 sm:px-6">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
               <motion.div 
-                className="flex flex-wrap gap-2"
+                className="flex flex-wrap justify-center sm:justify-start gap-2 w-full sm:w-auto mb-3 sm:mb-0"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
@@ -225,13 +224,13 @@ export default function EventsPage() {
                   <button
                     key={filter.id}
                     onClick={() => setSelectedFilter(filter.id)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
+                    className={`px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all flex items-center gap-1 sm:gap-2 ${
                       selectedFilter === filter.id 
                         ? 'bg-accent text-primary' 
                         : 'bg-white/5 text-white/70 hover:bg-white/10'
                     }`}
                   >
-                    <filter.icon className="w-4 h-4" />
+                    <filter.icon className="w-3 h-3 sm:w-4 sm:h-4" />
                     {filter.label}
                     {filter.id !== 'all' && categoryCounts[filter.id] && (
                       <span className={`ml-1 px-2 py-0.5 rounded-full text-xs ${
@@ -247,7 +246,7 @@ export default function EventsPage() {
               </motion.div>
 
               <motion.button 
-                className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-full text-white/80 text-sm transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-full text-white/80 text-xs sm:text-sm transition-colors w-full sm:w-auto justify-center sm:justify-start"
                 onClick={toggleSortOrder}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -268,7 +267,7 @@ export default function EventsPage() {
         
         {/* Events Grid - Main Focus */}
         <section ref={eventsGridRef} className="py-10 md:py-14">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
             <motion.h2
               className="text-xl text-white/90 mb-6"
               initial={{ opacity: 0 }}
@@ -282,9 +281,9 @@ export default function EventsPage() {
               )}
             </motion.h2>
             
-            {/* Enhanced Event Grid with Masonry-like layout */}
+            {/* Enhanced Event Grid with proper spacing and centering on mobile */}
             <motion.div 
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 mx-auto max-w-full justify-items-center"
               variants={staggerContainer}
               initial="hidden"
               animate={isEventsGridInView ? "visible" : "hidden"}
@@ -296,6 +295,7 @@ export default function EventsPage() {
                     key={index}
                     variants={fadeInUp}
                     custom={index}
+                    className="w-full max-w-sm"
                   >
                     <UpcomingEventsSkeleton />
                   </motion.div>
@@ -312,7 +312,7 @@ export default function EventsPage() {
                       exit={{ opacity: 0, scale: 0.9 }}
                       variants={fadeInUp}
                       onClick={() => handleEventClick(event)}
-                      className="cursor-pointer"
+                      className="cursor-pointer w-full max-w-sm"
                       layout
                     >
                       <TiltCard className="h-full">
@@ -322,7 +322,7 @@ export default function EventsPage() {
                           initial="rest"
                           whileHover="hover"
                         >
-                          <div className="relative h-52 overflow-hidden">
+                          <div className="relative h-40 sm:h-52 overflow-hidden">
                             <motion.div
                               whileHover={{ scale: 1.05 }}
                               transition={{ duration: 0.8 }}
@@ -382,11 +382,11 @@ export default function EventsPage() {
                             </motion.div>
                           </div>
                           
-                          <div className="p-5">
-                            <div className="space-y-3 mb-4">
+                          <div className="p-3 sm:p-5">
+                            <div className="space-y-2 sm:space-y-3 mb-3 sm:mb-4">
                               <div className="flex items-center text-white/80 gap-2">
-                                <Calendar className="w-4 h-4 text-accent" /> 
-                                <span className="text-sm">{event.date}</span>
+                                <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-accent" /> 
+                                <span className="text-xs sm:text-sm">{event.date}</span>
                               </div>
                               <div className="flex items-center text-white/80 gap-2">
                                 <MapPin className="w-4 h-4 text-accent" /> 
@@ -494,20 +494,20 @@ export default function EventsPage() {
         )}
         
         {/* Compact CTA section */}
-        <div className="border-t border-white/10 py-10 bg-accent/5">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="text-center md:text-left">
-                <h3 className="text-xl font-bold text-white mb-2">
+        <div className="border-t border-white/10 py-6 sm:py-10 bg-accent/5">
+          <div className="container mx-auto px-4 sm:px-6">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
+              <div className="text-center sm:text-left">
+                <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
                   Want to join our upcoming events?
                 </h3>
-                <p className="text-white/60">
+                <p className="text-sm sm:text-base text-white/60">
                   Become an IEEE member for exclusive access
                 </p>
               </div>
               <Link href="/join">
                 <motion.button 
-                  className="px-6 py-3 bg-accent text-primary font-medium rounded-lg hover:bg-accent/90 transition-all duration-300"
+                  className="w-full sm:w-auto px-6 py-3 bg-accent text-primary font-medium rounded-lg hover:bg-accent/90 transition-all duration-300"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.98 }}
                 >
