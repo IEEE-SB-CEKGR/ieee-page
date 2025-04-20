@@ -198,9 +198,9 @@ export default function Header() {
             </motion.div>
           </nav>
 
-          {/* Mobile Menu Button - simplified */}
+          {/* Mobile Menu Button - improved visibility */}
           <motion.button
-            className="md:hidden relative z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10"
+            className="md:hidden relative z-[60] w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
             whileTap={{ scale: 0.95 }}
@@ -215,7 +215,7 @@ export default function Header() {
                   exit={{ rotate: 90, opacity: 0 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 >
-                  <X size={18} className="text-white" />
+                  <X size={24} className="text-accent" />
                 </motion.div>
               ) : (
                 <motion.div
@@ -225,7 +225,7 @@ export default function Header() {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <Menu size={18} className="text-white" />
+                  <Menu size={20} className="text-cyan" />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -233,11 +233,11 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile Menu - cleaner, more modern approach */}
+      {/* Mobile Menu - with additional close option */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            className="fixed inset-0 z-40 flex flex-col md:hidden"
+            className="fixed inset-0 z-50 flex flex-col md:hidden"
             initial={{ opacity: 0, clipPath: "circle(0% at calc(100% - 40px) 40px)" }}
             animate={{ opacity: 1, clipPath: "circle(150% at calc(100% - 40px) 40px)" }}
             exit={{ opacity: 0, clipPath: "circle(0% at calc(100% - 40px) 40px)" }}
