@@ -65,6 +65,45 @@ body {
   }
 }
 
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes pulse-slow-delay {
+  0%, 100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
 .animate-fade-in {
   animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 8s infinite;
+}
+
+.animate-pulse-slow-delay {
+  animation: pulse-slow-delay 12s infinite;
+}
+
+.animate-float {
+  animation: float 15s ease-in-out infinite;
 }

@@ -1,6 +1,6 @@
 const { db } = require('@vercel/postgres');
 const { users, events, members } = require('../app/lib/placeholder-data.js');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 async function seedMembers(client) {
   try {

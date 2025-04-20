@@ -1,56 +1,53 @@
 'use client';
 
-import { useEffect } from 'react';
-import CountUp from 'react-countup';
-import { fetchStats } from '@/app/lib/actions';
-import { date } from 'zod';
+import { motion } from 'framer-motion';
+import { useInView } from 'framer-motion';
+import { useRef } from 'react';
 
 const stats = [
-  { number: 30, text: 'Events Hosted' },
-  { number: 20, text: 'Student Members' },
-  { number: 20, text: 'Execom Members' },
+  { id: 1, value: '50+', label: 'Events Organized' },
+  { id: 2, value: '500+', label: 'Student Members' },
+  { id: 3, value: '25+', label: 'Awards Won' },
+  { id: 4, value: '10+', label: 'Years of Excellence' },
 ];
 
-const Stats = () => {
-  useEffect(() => {
-    const fetchStatsData = async () => {
-      const data = await fetchStats();
-      console.log('Stats data : ', data);
-    };
-
-    fetchStatsData();
-  }, []);
-
+export default function Stats() {
+  const containerRef = useRef(null);
+  const isInView = useInView(containerRef, { once: true, amount: 0.3 });
+  
   return (
-    <section className="container">
-      <div className="container mx-auto px-0">
-        <div className="mx-auto flex max-w-[80vw] flex-wrap gap-6 xl:max-w-none">
-          {stats.map(
-            (item: { number: number; text: string }, index: number) => {
-              return (
-                <div
-                  key={index}
-                  className="flex flex-1 items-center justify-center gap-4 xl:justify-start"
-                >
-                  <CountUp
-                    end={item.number}
-                    duration={5}
-                    delay={2}
-                    className="text-4xl font-extrabold text-white xl:text-6xl"
-                  />
-                  <p
-                    className={`${item.text.length < 16 ? 'max-w-[100px]' : 'max-w-[150px]'} leading-snug text-white/80`}
-                  >
-                    {item.text}
-                  </p>
-                </div>
-              );
-            },
-          )}
-        </div>
-      </div>
-    </section>
+    <motion.div 
+      ref={containerRef}
+      className="grid grid-cols-2 gap-8 md:grid-cols-4"
+    >
+      {stats.map((stat, index) => (
+        <motion.div
+          key={stat.id}
+          className="flex flex-col items-center p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ 
+            delay: index * 0.1,
+            duration: 0.5,
+            ease: "easeOut"
+          }}
+        >
+          <motion.div 
+            className="text-4xl sm:text-5xl font-bold text-accent mb-2"
+            initial={{ scale: 0.8 }}
+            animate={isInView ? { scale: 1 } : {}}
+            transition={{ 
+              delay: 0.3 + index * 0.1,
+              duration: 0.4,
+              type: "spring",
+              stiffness: 200
+            }}
+          >
+            {stat.value}
+          </motion.div>
+          <div className="text-white/70 text-center font-medium">{stat.label}</div>
+        </motion.div>
+      ))}
+    </motion.div>
   );
-};
-
-export default Stats;
+}

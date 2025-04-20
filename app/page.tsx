@@ -1,10 +1,22 @@
 'use client';
 
+import { motion, useScroll, useTransform } from 'framer-motion';
 import Social from '@/app/ui/home/Social';
 import Stats from '@/app/ui/home/Stats';
 import '@/app/ui/global.css';
-import Carousel from './ui/home/Carousel';
-import BgAnimation from './ui/home/bgAnimation';
+import HeroCarousel from './ui/home/HeroCarousel';
+import { EmblaOptionsType } from 'embla-carousel-react';
+import { useInView } from 'framer-motion';
+import { useRef } from 'react';
+import Link from 'next/link';
+import { ChevronDown, Calendar, Users, Award, BookOpen, ArrowRight } from 'lucide-react';
+import AnimatedSection from '@/app/ui/home/AnimatedSection';
+import TextReveal from '@/app/ui/home/TextReveal';
+import TiltCard from '@/app/ui/home/TiltCard';
+import CountUp from '@/app/ui/home/CountUp';
+import Image from 'next/image';
+import TypewriterReveal from '@/app/ui/home/TypewriterReveal';
+import CircuitText from '@/app/ui/home/CircuitText';
 
 const images = [
   '/globe/home1.jpg',
@@ -13,52 +25,526 @@ const images = [
   '/globe/home4.jpg',
 ];
 
-const OPTIONS: EmblaOptionsType = { loop: true };
-const SLIDE_COUNT = 5;
-const SLIDES = Array.from(Array(SLIDE_COUNT).keys());
+const OPTIONS: EmblaOptionsType = { 
+  loop: true,
+  dragFree: true,
+  containScroll: 'trimSnaps'
+};
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: i * 0.1,
+      duration: 0.6,
+      ease: "easeOut"
+    }
+  })
+};
 
 export default function Page() {
+  const statsRef = useRef(null);
+  const eventsRef = useRef(null);
+  const aboutRef = useRef(null);
+  
+  const isStatsInView = useInView(statsRef, { once: true, amount: 0.3 });
+  const isEventsInView = useInView(eventsRef, { once: true, amount: 0.2 });
+  const isAboutInView = useInView(aboutRef, { once: true, amount: 0.2 });
+  
+  const heroRef = useRef(null);
+  
+  // Parallax scroll effect
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"]
+  });
+  
+  const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
+  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
+
   return (
-    <section className="min-h-screen w-full">
-      <div>
-        <BgAnimation />
-      </div>
-      <div className="mx-auto p-4 sm:p-10">
-        <div>
-          <div className="flex flex-col items-center justify-center xl:flex-row xl:justify-between xl:pb-24 xl:pt-8">
-            {/* text */}
-            <div className="order-2 text-center sm:mt-10 xl:order-none xl:text-left">
-              <h1 className="mb-6 text-2xl font-bold text-white sm:text-3xl lg:text-4xl">
-                COLLEGE OF ENGINEERING KIDANGOOR
-                <br />
-                <br />
-                <span className="font-bold text-accent">IEEE SB CE KGR</span>
-              </h1>
-              <p className="mb-9 max-w-[700px] text-white/80 sm:w-screen">
-                Lorem Ipsum is simply dummy text of the printing and typesetting
-                industry. Lorem Ipsum has been the industry's standard dummy
-                text ever since the 1500s, when an unknown printer took a galley
-                of type and scrambled it to make a type specimen book.
-              </p>
-              {/* Buttons and Socials */}
-              <div className="flex flex-col items-center gap-8 xl:flex-row">
-                <div className="mb-8 xl:mb-0">
-                  <Social
-                    containerStyles="flex gap-6"
-                    iconsStyles="w-9 h-9 border border-accent rounded-full flex justify-center items-center text-accent text-base hover:bg-accent hover:text-primary hover:transition-all duration-500"
+    <main className="relative overflow-hidden bg-gradient-to-b from-[#040D21] to-[#0A1A3A]">
+      {/* Hero Section */}
+      <section 
+        ref={heroRef}
+        className="relative min-h-screen flex items-center w-full pt-20"
+      >
+        {/* Enhanced animated gradient background */}
+        <motion.div 
+          className="absolute inset-0 -z-10" 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+        >
+          {/* More vibrant, larger gradients */}
+          <div className="absolute top-0 -left-4 w-[40vw] h-[40vw] bg-accent/25 rounded-full blur-[120px] animate-pulse-slow" />
+          <div className="absolute bottom-0 right-0 w-[35vw] h-[35vw] bg-blue-700/20 rounded-full blur-[150px] animate-pulse-slow-delay" />
+          <div className="absolute top-1/3 right-1/4 w-[25vw] h-[25vw] bg-purple-700/10 rounded-full blur-[100px] animate-float" />
+          
+          {/* Enhanced animated background elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            {/* Particles with more variety */}
+            <div className="particles-container">
+              {[...Array(30)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className={`absolute ${i % 2 === 0 ? 'w-1 h-1' : 'w-2 h-2'} ${i % 3 === 0 ? 'bg-white/30' : 'bg-accent/30'} rounded-full`}
+                  initial={{
+                    x: Math.random() * 100 + "%",
+                    y: Math.random() * 100 + "%",
+                    scale: Math.random() * 0.5 + 0.5,
+                    opacity: Math.random() * 0.6 + 0.2
+                  }}
+                  animate={{
+                    y: [
+                      Math.random() * 100 + "%",
+                      Math.random() * 100 + "%",
+                      Math.random() * 100 + "%"
+                    ],
+                    x: i % 4 === 0 ? [
+                      Math.random() * 100 + "%",
+                      Math.random() * 100 + "%",
+                      Math.random() * 100 + "%"
+                    ] : undefined,
+                    opacity: [
+                      Math.random() * 0.6 + 0.2,
+                      Math.random() * 0.6 + 0.2,
+                      Math.random() * 0.6 + 0.2
+                    ]
+                  }}
+                  transition={{
+                    duration: Math.random() * 20 + 10,
+                    repeat: Infinity,
+                    ease: "linear"
+                  }}
+                />
+              ))}
+            </div>
+            
+            {/* Floating shapes with improved variety */}
+            {[...Array(7)].map((_, i) => (
+              <motion.div
+                key={`shape-${i}`}
+                className="absolute opacity-20"
+                initial={{
+                  x: `${Math.random() * 100}%`,
+                  y: `${Math.random() * 100}%`,
+                  scale: Math.random() * 0.5 + 0.5,
+                  rotate: Math.random() * 360
+                }}
+                animate={{
+                  x: [
+                    `${Math.random() * 100}%`, 
+                    `${Math.random() * 100}%`, 
+                    `${Math.random() * 100}%`
+                  ],
+                  y: [
+                    `${Math.random() * 100}%`, 
+                    `${Math.random() * 100}%`, 
+                    `${Math.random() * 100}%`
+                  ],
+                  rotate: [0, 180, 360]
+                }}
+                transition={{
+                  duration: Math.random() * 50 + 20,
+                  repeat: Infinity,
+                  ease: "linear"
+                }}
+              >
+                <div 
+                  className={`
+                    ${i % 3 === 0 ? 'w-32 h-32' : i % 2 === 0 ? 'w-48 h-48' : 'w-24 h-24'}
+                    ${i % 4 === 0 ? 'bg-blue-500/10' : i % 3 === 0 ? 'bg-purple-500/10' : 'bg-accent/10'} 
+                    ${i % 2 === 0 ? 'rounded-full' : 'rounded-3xl'} blur-lg
+                  `}
+                />
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        <div className="container mx-auto px-4 py-10 md:py-20">
+          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+            {/* Content Column */}
+            <motion.div 
+              className="text-center lg:text-left"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                visible: { transition: { staggerChildren: 0.2 } }
+              }}
+              style={{ y, opacity }}
+            >
+              <motion.div 
+                className="inline-block mb-6 px-4 py-2 bg-accent/10 rounded-full text-accent text-sm font-medium backdrop-blur-sm border border-accent/20"
+                variants={fadeInUp}
+                custom={0}
+              >
+                <TypewriterReveal 
+                  text="Advancing Technology for Humanity" 
+                  delay={0.5} 
+                  showCursor={false}
+                />
+              </motion.div>
+
+              {/* Circuit-style animated title */}
+              <div className="mb-6">
+                <CircuitText 
+                  text="COLLEGE OF ENGINEERING KIDANGOOR" 
+                  className="mb-4 text-3xl font-bold sm:text-4xl lg:text-5xl tracking-tighter"
+                  delay={0.8}
+                />
+                <motion.div
+                  className="mt-4 inline-flex items-center gap-3"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.3, duration: 0.5 }}
+                >
+                  <div className="h-6 w-[3px] bg-accent"></div>
+                  <TypewriterReveal 
+                    text="IEEE SB CE KGR"
+                    className="text-accent text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tighter"
+                    delay={1.4}
+                    cursorColor="#ffffff"
                   />
-                </div>
+                </motion.div>
               </div>
-            </div>
-            {/* photo */}
-            <div className="order-1 mb-10 xl:order-none xl:mb-0">
-              <Carousel slides={SLIDES} options={OPTIONS} />
-            </div>
-            <div></div>
+
+              {/* Additional tech-inspired element to add after the title */}
+              <motion.div
+                className="hidden lg:block absolute -right-4 -top-4 z-0 opacity-20"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.2 }}
+                transition={{ delay: 2, duration: 1 }}
+              >
+                <svg width="120" height="120" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="50" cy="50" r="49" stroke="currentColor" strokeWidth="0.5" className="text-accent" />
+                  <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="0.5" className="text-accent" />
+                  <motion.path
+                    d="M50 10 L50 90 M10 50 L90 50"
+                    stroke="currentColor"
+                    strokeWidth="0.5"
+                    className="text-accent"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ delay: 2.2, duration: 1.5, ease: "easeInOut" }}
+                  />
+                  <motion.path
+                    d="M20 20 L80 80 M20 80 L80 20"
+                    stroke="currentColor"
+                    strokeWidth="0.5"
+                    className="text-accent"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ delay: 2.4, duration: 1.5, ease: "easeInOut" }}
+                  />
+                </svg>
+              </motion.div>
+
+              <div className="mt-8 mb-10 max-w-[600px] mx-auto lg:mx-0 space-y-4">
+                <motion.p
+                  className="text-white/80 text-lg leading-relaxed"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.9, duration: 0.6 }}
+                >
+                  Empowering engineering students through technical innovation and professional development.
+                </motion.p>
+                
+                <motion.p 
+                  className="text-white/70 leading-relaxed"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 2.1, duration: 0.6 }}
+                >
+                  Join us in building technology for a better tomorrow.
+                </motion.p>
+                
+                {/* Animated line separator */}
+                <motion.div
+                  className="w-16 h-1 bg-accent/50 rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: 64 }}
+                  transition={{ delay: 2.3, duration: 0.8 }}
+                />
+              </div>
+
+              <motion.div 
+                className="flex flex-wrap justify-center lg:justify-start gap-4 mb-8"
+                variants={fadeInUp}
+                custom={3}
+              >
+                <Link href="/join" className="group">
+                  <motion.button 
+                    className="group-hover:shadow-lg group-hover:shadow-accent/20 px-6 py-3 bg-accent text-primary font-medium rounded-lg hover:bg-accent/90 transition-all duration-300 flex items-center gap-2"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    JOIN IEEE
+                    <motion.span
+                      initial={{ x: 0 }}
+                      animate={{ x: [0, 5, 0] }}
+                      transition={{ 
+                        duration: 1.5, 
+                        repeat: Infinity, 
+                        repeatDelay: 1,
+                        ease: "easeInOut" 
+                      }}
+                    >
+                      <ArrowRight className="w-4 h-4" />
+                    </motion.span>
+                  </motion.button>
+                </Link>
+                <Link href="/events">
+                  <motion.button 
+                    className="px-6 py-3 border border-white/30 text-white font-medium rounded-lg hover:bg-white/10 transition-all duration-300"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    EXPLORE EVENTS
+                  </motion.button>
+                </Link>
+              </motion.div>
+
+              <motion.div 
+                variants={fadeInUp}
+                custom={4}
+              >
+                <Social 
+                  containerStyles="flex gap-6 justify-center lg:justify-start"
+                  iconsStyles="w-10 h-10 border border-accent/50 rounded-full flex justify-center items-center text-accent text-base hover:bg-accent hover:text-primary hover:border-accent transition-all duration-300"
+                />
+              </motion.div>
+            </motion.div>
+
+            {/* Image Column with Tilt Effect */}
+            <motion.div 
+              className="order-first lg:order-last"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
+              style={{ y: useTransform(scrollYProgress, [0, 1], [0, -100]), scale }}
+            >
+              <TiltCard className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+                <HeroCarousel images={images} options={OPTIONS} />
+                
+                {/* Floating badges */}
+                <motion.div
+                  className="absolute top-5 right-5 bg-black/50 backdrop-blur-md px-3 py-2 rounded-full text-white text-xs font-medium border border-white/10"
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.2, duration: 0.6 }}
+                >
+                  Est. 2010
+                </motion.div>
+              </TiltCard>
+            </motion.div>
+          </div>
+          
+          {/* Scroll indicator */}
+          <motion.div 
+            className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1, duration: 1 }}
+          >
+            <motion.span 
+              className="text-white/50 text-sm mb-2"
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ repeat: Infinity, duration: 2 }}
+            >
+              Scroll to explore
+            </motion.span>
+            <motion.div
+              animate={{ y: [0, 10, 0] }}
+              transition={{
+                repeat: Infinity,
+                duration: 2,
+                ease: "easeInOut"
+              }}
+            >
+              <ChevronDown className="w-6 h-6 text-white/50" />
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Stats Section with CountUp */}
+      <AnimatedSection 
+        ref={statsRef}
+        className="py-16 md:py-24 bg-accent/5 rounded-t-[40px] backdrop-blur-sm border-t border-white/10"
+        delay={0.1}
+      >
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <motion.h2 
+              className="text-2xl md:text-3xl font-bold text-white mb-4"
+              initial={{ opacity: 0 }}
+              animate={isStatsInView ? { opacity: 1 } : {}}
+              transition={{ delay: 0.2 }}
+            >
+              Our Impact in Numbers
+            </motion.h2>
+            <motion.div 
+              className="w-20 h-1 bg-accent mx-auto"
+              initial={{ width: 0 }}
+              animate={isStatsInView ? { width: 80 } : {}}
+              transition={{ delay: 0.4, duration: 0.8 }}
+            />
+          </div>
+          
+          {/* Stats cards with CountUp */}
+          <div className="grid grid-cols-2 gap-6 md:grid-cols-4 lg:gap-8">
+            {[
+              { icon: Users, value: 500, label: "Members", suffix: "+" },
+              { icon: Calendar, value: 50, label: "Events", suffix: "+" },
+              { icon: Award, value: 25, label: "Awards", suffix: "+" },
+              { icon: BookOpen, value: 10, label: "Years", suffix: "+" },
+            ].map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                className="flex flex-col items-center p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-accent/30 transition-all duration-300"
+                initial={{ opacity: 0, y: 20 }}
+                animate={isStatsInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ 
+                  delay: 0.2 + index * 0.1,
+                  duration: 0.5,
+                  ease: "easeOut"
+                }}
+                whileHover={{ y: -5 }}
+              >
+                <motion.div 
+                  className="mb-4 p-3 rounded-full bg-accent/10"
+                  initial={{ scale: 0.8 }}
+                  animate={isStatsInView ? { scale: 1 } : {}}
+                  transition={{ 
+                    delay: 0.3 + index * 0.1,
+                    duration: 0.4,
+                    type: "spring",
+                    stiffness: 200
+                  }}
+                >
+                  <stat.icon className="w-6 h-6 text-accent" />
+                </motion.div>
+                <div className="text-4xl sm:text-5xl font-bold text-accent mb-2 flex items-center">
+                  <CountUp end={stat.value} duration={2000} />
+                  <span>{stat.suffix}</span>
+                </div>
+                <div className="text-white/70 text-center font-medium">{stat.label}</div>
+              </motion.div>
+            ))}
           </div>
         </div>
-        <Stats />
-      </div>
-    </section>
+      </AnimatedSection>
+      
+      {/* Add Featured Events Section */}
+      <AnimatedSection 
+        ref={eventsRef}
+        className="py-16 md:py-24 relative overflow-hidden"
+        delay={0.2}
+      >
+        {/* Background decorations */}
+        <div className="absolute inset-y-0 right-0 w-1/2 bg-accent/5 -skew-x-12 -z-10" />
+        
+        <div className="container mx-auto px-4">
+          <div className="mb-12 flex flex-col md:flex-row justify-between items-center">
+            <div>
+              <motion.h2 
+                className="text-2xl md:text-3xl font-bold text-white mb-4"
+                initial={{ opacity: 0, x: -20 }}
+                animate={isEventsInView ? { opacity: 1, x: 0 } : {}}
+                transition={{ delay: 0.2 }}
+              >
+                Featured Events
+              </motion.h2>
+              <motion.div 
+                className="w-20 h-1 bg-accent"
+                initial={{ width: 0 }}
+                animate={isEventsInView ? { width: 80 } : {}}
+                transition={{ delay: 0.4, duration: 0.8 }}
+              />
+            </div>
+            
+            <Link href="/events">
+              <motion.button 
+                className="mt-6 md:mt-0 px-6 py-2 border border-accent text-accent rounded-lg hover:bg-accent hover:text-primary transition-all duration-300 flex items-center gap-2"
+                whileHover={{ scale: 1.05, x: 5 }}
+                whileTap={{ scale: 0.98 }}
+                initial={{ opacity: 0 }}
+                animate={isEventsInView ? { opacity: 1 } : {}}
+                transition={{ delay: 0.6 }}
+              >
+                View All Events
+                <ArrowRight className="w-4 h-4" />
+              </motion.button>
+            </Link>
+          </div>
+          
+          {/* Event cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { 
+                title: "Tech Symposium 2025",
+                date: "May 15, 2025",
+                image: "/globe/home1.jpg",
+                tag: "Conference"
+              },
+              { 
+                title: "Workshop on AI & ML",
+                date: "June 10, 2025",
+                image: "/globe/home2.jpg",
+                tag: "Workshop"
+              },
+              { 
+                title: "Robotics Competition",
+                date: "July 22, 2025",
+                image: "/globe/home3.jpg",
+                tag: "Contest"
+              }
+            ].map((event, index) => (
+              <TiltCard key={index} className="h-full">
+                <motion.div 
+                  className="h-full rounded-xl overflow-hidden bg-white/5 border border-white/10 hover:border-accent/30 transition-all duration-300"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={isEventsInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ delay: 0.3 + index * 0.1, duration: 0.6 }}
+                  whileHover={{ y: -5 }}
+                >
+                  <div className="relative h-48 overflow-hidden">
+                    <Image 
+                      src={event.image} 
+                      alt={event.title}
+                      fill
+                      className="object-cover transition-transform duration-700 hover:scale-110"
+                    />
+                    <div className="absolute top-4 left-4 bg-accent/90 text-primary text-xs font-bold px-3 py-1 rounded-full">
+                      {event.tag}
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-white mb-2">{event.title}</h3>
+                    <p className="text-white/70 mb-4 flex items-center gap-2">
+                      <Calendar className="w-4 h-4" /> {event.date}
+                    </p>
+                    <Link href={`/events/${index}`}>
+                      <motion.button 
+                        className="w-full py-2 text-center rounded bg-white/10 hover:bg-accent hover:text-primary transition-all duration-300 text-white"
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        Learn More
+                      </motion.button>
+                    </Link>
+                  </div>
+                </motion.div>
+              </TiltCard>
+            ))}
+          </div>
+        </div>
+      </AnimatedSection>
+    </main>
   );
 }
