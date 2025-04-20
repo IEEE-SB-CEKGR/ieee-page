@@ -2,14 +2,20 @@
 
 import Header from '@/app/ui/home/Header';
 import AboutPage from '../ui/home/About';
-import Footer from '../ui/home/Footer';
+import { motion } from 'framer-motion';
 
 export default function Page() {
   return (
     <main className="flex min-h-screen flex-col">
-      <div className="flex-grow p-4 sm:p-10">
+      <Header />
+      <motion.div 
+        className="flex-grow"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
         <AboutPage />
-      </div>
+      </motion.div>
     </main>
   );
 }
