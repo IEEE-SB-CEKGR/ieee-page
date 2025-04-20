@@ -5,11 +5,26 @@ import EventCard from '@/app/ui/home/EventsCard';
 import EventModal from '@/app/ui/home/EventModal';
 import { UpcomingEventsSkeleton } from '../skeletons';
 
-export default function UpcomingEvents() {
-  const [events, setEvents] = useState([]);
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [isLoading, setIsLoading] = useState(true); // To manage loading state
+interface Event {
+  date: string;
+  id: string;
+  name: string;
+  image_url: string;
+  email: string;
+  amount: string;
+  mode: string;
+  venue: string;
+  fee: string;
+  description: string;
+  link: string;
+  time: string;
+}
 
+export default function UpcomingEvents() {
+  const [events, setEvents] = useState<Event[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  
   useEffect(() => {
     const fetchEvents = async () => {
       const data = await fetchUpcomingEventsAction();
@@ -23,7 +38,7 @@ export default function UpcomingEvents() {
     fetchEvents();
   }, []);
 
-  const handleEventClick = (event: any) => {
+  const handleEventClick = (event: Event) => {
     setSelectedEvent(event);
   };
 

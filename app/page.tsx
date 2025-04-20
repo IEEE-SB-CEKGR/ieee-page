@@ -244,33 +244,60 @@ export default function Page() {
                 </svg>
               </motion.div>
 
-              <div className="mt-8 mb-10 max-w-[600px] mx-auto lg:mx-0 space-y-4">
-                <motion.p
-                  className="text-white/80 text-lg leading-relaxed"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+              <motion.div 
+                className="mt-8 mb-12 max-w-[600px] mx-auto lg:mx-0"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 1.7 }}
+              >
+                {/* Decorative element */}
+                <motion.div 
+                  className="flex items-center gap-3 mb-6"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 1.9, duration: 0.6 }}
                 >
-                  Empowering engineering students through technical innovation and professional development.
-                </motion.p>
+                  <div className="h-[2px] w-8 bg-accent"/>
+                  <span className="text-accent text-xs uppercase tracking-widest font-medium">Our Mission</span>
+                </motion.div>
                 
-                <motion.p 
-                  className="text-white/70 leading-relaxed"
-                  initial={{ opacity: 0, y: 20 }}
+                {/* Main description with enhanced typography */}
+                <motion.p
+                  className="text-white/90 text-xl font-light leading-relaxed mb-4 tracking-wide"
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 2.1, duration: 0.6 }}
+                  transition={{ delay: 2.0, duration: 0.7 }}
                 >
-                  Join us in building technology for a better tomorrow.
+                  <span className="text-accent font-normal">Empowering</span> engineering students through technical innovation and professional development.
                 </motion.p>
                 
-                {/* Animated line separator */}
+                {/* Secondary description with professional styling */}
                 <motion.div
-                  className="w-16 h-1 bg-accent/50 rounded-full"
-                  initial={{ width: 0 }}
-                  animate={{ width: 64 }}
-                  transition={{ delay: 2.3, duration: 0.8 }}
-                />
-              </div>
+                  className="relative pl-4 border-l-2 border-accent/30 ml-1"
+                  initial={{ opacity: 0, y: 15, height: 0 }}
+                  animate={{ opacity: 1, y: 0, height: "auto" }}
+                  transition={{ delay: 2.2, duration: 0.6 }}
+                >
+                  <p className="text-white/70 leading-relaxed font-light">
+                    Join us in building technology for a better tomorrow through collaboration, innovation, and excellence in engineering practices.
+                  </p>
+                  
+                  {/* Animated dot indicator */}
+                  <motion.div 
+                    className="absolute -left-[5px] top-0 w-2 h-2 rounded-full bg-accent"
+                    animate={{ 
+                      y: [0, 40, 0],
+                      opacity: [0.5, 1, 0.5]
+                    }}
+                    transition={{ 
+                      duration: 3, 
+                      repeat: Infinity,
+                      repeatType: "reverse",
+                      ease: "easeInOut"
+                    }}
+                  />
+                </motion.div>
+              </motion.div>
 
               <motion.div 
                 className="flex flex-wrap justify-center lg:justify-start gap-4 mb-8"

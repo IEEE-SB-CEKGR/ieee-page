@@ -473,7 +473,7 @@ export default function EventsPage() {
                   <Search className="w-12 h-12" />
                 </motion.div>
                 <h3 className="text-2xl font-semibold text-white mb-3">No events found</h3>
-                <p className="text-white/60 mb-8">We couldn't find any events matching your current filters.</p>
+                <p className="text-white/60 mb-8">We couldn&apos;t find any events matching your current filters.</p>
                 <button 
                   onClick={() => {
                     setSearchQuery('');

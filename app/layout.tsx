@@ -1,5 +1,5 @@
 import '@/app/ui/global.css';
-import { JetBrains_Mono, Inter } from 'next/font/google';
+import { Space_Grotesk, Outfit, Fira_Code } from 'next/font/google';
 import { Metadata, Viewport } from 'next';
 import { AnimatePresence } from 'framer-motion';
 
@@ -11,19 +11,28 @@ import BackToTop from './ui/home/BackToTop';
 import CursorFollower from './ui/home/CursorFollower';
 import ScrollProgress from './ui/home/ScrollProgress';
 
-// Primary font
-const inter = Inter({
+// Primary font - Outfit for clean, modern aesthetic
+const outfit = Outfit({
   subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-outfit',
   display: 'swap',
+  weight: ['300', '400', '500', '600', '700'],
 });
 
-// Monospace font for code and technical content
-const jetbrainsMono = JetBrains_Mono({
+// Secondary font for headings - Space Grotesk for technical, distinctive character
+const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-jetbrainsMono',
+  variable: '--font-space-grotesk',
   display: 'swap',
+  weight: ['400', '500', '600', '700'],
+});
+
+// Monospace font for code and technical content - Fira Code with programming ligatures
+const firaCode = Fira_Code({
+  subsets: ['latin'],
+  variable: '--font-fira-code',
+  display: 'swap',
+  weight: ['400', '500', '600', '700'],
 });
 
 export const viewport: Viewport = {
@@ -56,7 +65,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={`${inter.variable} ${jetbrainsMono.variable} antialiased bg-gradient-to-b from-[#040D21] to-[#0A1A3A] text-white`}>
+      <body className={`${outfit.variable} ${spaceGrotesk.variable} ${firaCode.variable} antialiased bg-gradient-to-b from-[#040D21] to-[#0A1A3A] text-white font-outfit`}>
         <ScrollProgress />
         <SmoothScroll>
           <Header />

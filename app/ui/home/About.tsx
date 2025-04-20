@@ -318,7 +318,7 @@ export default function AboutPage() {
           variants={fadeIn}
           className="text-white/80 text-center max-w-3xl mx-auto mb-12 px-4"
         >
-          Journey through our chapter's memorable events, achievements, and milestones over the years.
+            Journey through our chapter&apos;s memorable events, achievements, and milestones over the years.
         </motion.p>
         
         {/* Timeline */}

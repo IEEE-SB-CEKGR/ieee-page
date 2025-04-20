@@ -107,3 +107,21 @@ body {
 .animate-float {
   animation: float 15s ease-in-out infinite;
 }
+
+:root {
+  --font-outfit: var(--font-outfit);
+  --font-space-grotesk: var(--font-space-grotesk);
+  --font-fira-code: var(--font-fira-code);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-space-grotesk);
+}
+
+body {
+  font-family: var(--font-outfit);
+}
+
+code, pre {
+  font-family: var(--font-fira-code);
+}

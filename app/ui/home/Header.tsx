@@ -8,10 +8,10 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 
 const navItems = [
-  { name: 'Home', href: '/' },
-  { name: 'Events', href: '/events' },
-  { name: 'Execom', href: '/execom/2024' },
-  { name: 'About', href: '/about' },
+  { name: 'HOME', href: '/' },
+  { name: 'EVENTS', href: '/events' },
+  { name: 'EXECOM', href: '/execom/2024' },
+  { name: 'ABOUT', href: '/about' },
 ];
 
 export default function Header() {
@@ -187,11 +187,11 @@ export default function Header() {
             >
               <Link href="/join">
                 <motion.button
-                  className="bg-accent hover:bg-accent/90 text-white py-2 px-4 rounded-md text-sm font-medium flex items-center gap-1.5 transition-all"
+                  className="bg-accent hover:bg-accent/90 text-black py-2 px-4 rounded-md text-sm font-medium flex items-center gap-1.5 transition-all"
                   whileHover={{ scale: 1.02, gap: '8px' }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  Join IEEE
+                  JOIN IEEE
                   <ArrowRight className="w-3.5 h-3.5" />
                 </motion.button>
               </Link>
