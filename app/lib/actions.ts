@@ -113,7 +113,11 @@ export async function filterMembersOnYear(year: string) {
         type,
         role,
         image_url,
-        year
+        year,
+        linkedin,
+        twitter,
+        email,
+        instagram
       FROM members
       WHERE year = ${year}
       ORDER BY name
