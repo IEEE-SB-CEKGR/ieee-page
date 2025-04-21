@@ -9,7 +9,7 @@ import { EmblaOptionsType } from 'embla-carousel';
 import { useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ChevronDown, Calendar, Users, Award, BookOpen, ArrowRight } from 'lucide-react';
+import { ChevronDown, Calendar, Users, Award, BookOpen, ArrowRight, MapPin } from 'lucide-react';
 import AnimatedSection from '@/app/ui/home/AnimatedSection';
 import TextReveal from '@/app/ui/home/TextReveal';
 import TiltCard from '@/app/ui/home/TiltCard';
@@ -17,7 +17,8 @@ import CountUp from '@/app/ui/home/CountUp';
 import Image from 'next/image';
 import TypewriterReveal from '@/app/ui/home/TypewriterReveal';
 import CircuitText from '@/app/ui/home/CircuitText';
-import { fetchAchievements } from '@/app/lib/actions';
+import { fetchAchievements, fetchTopEvents } from '@/app/lib/actions';
+import type { Event } from '@/app/lib/actions';
 
 // Define the Achievement type
 export type Achievement = {
@@ -84,7 +85,12 @@ export default function Page() {
   const [isLoadingAchievements, setIsLoadingAchievements] = useState(true);
   const [achievementsError, setAchievementsError] = useState<string | null>(null);
 
-  // Use the server action
+  // Add state for events data
+  const [events, setEvents] = useState<Event[]>([]);
+  const [isLoadingEvents, setIsLoadingEvents] = useState(true);
+  const [eventsError, setEventsError] = useState<string | null>(null);
+
+  // Use the server action to fetch achievements
   useEffect(() => {
     const loadAchievements = async () => {
       try {
@@ -103,9 +109,34 @@ export default function Page() {
     loadAchievements();
   }, []);
 
+  // Use the server action to fetch events
+  useEffect(() => {
+    const loadEvents = async () => {
+      try {
+        setIsLoadingEvents(true);
+        const data = await fetchTopEvents(3);
+        console.log("Events data:", data);
+        setEvents(data);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+        setEventsError('Failed to load events data');
+      } finally {
+        setIsLoadingEvents(false);
+      }
+    };
+    
+    loadEvents();
+  }, []);
+
   // Format date for display
   const formatDate = (dateString: string) => {
     return new Date(dateString).getFullYear().toString();
+  };
+
+  // Format date for events in a human-readable way
+  const formatEventDate = (dateString: string) => {
+    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString('en-US', options);
   };
 
   return (
@@ -560,63 +591,93 @@ export default function Page() {
           
           {/* Event cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { 
-                title: "Tech Symposium 2025",
-                date: "May 15, 2025",
-                image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1920&auto=format&fit=crop",
-                tag: "Conference"
-              },
-              { 
-                title: "Workshop on AI & ML",
-                date: "June 10, 2025",
-                image: "https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?q=80&w=1920&auto=format&fit=crop",
-                tag: "Workshop"
-              },
-              { 
-                title: "Robotics Competition",
-                date: "July 22, 2025",
-                image: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?q=80&w=1920&auto=format&fit=crop",
-                tag: "Contest"
-              }
-            ].map((event, index) => (
-              <TiltCard key={index} className="h-full">
-                <motion.div 
-                  className="h-full rounded-xl overflow-hidden bg-white/5 border border-white/10 hover:border-accent/30 transition-all duration-300"
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={isEventsInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ delay: 0.3 + index * 0.1, duration: 0.6 }}
-                  whileHover={{ y: -5 }}
-                >
-                  <div className="relative h-48 overflow-hidden">
-                    <Image 
-                      src={event.image} 
-                      alt={event.title}
-                      fill
-                      className="object-cover transition-transform duration-700 hover:scale-110"
-                    />
-                    <div className="absolute top-4 left-4 bg-accent/90 text-primary text-xs font-bold px-3 py-1 rounded-full">
-                      {event.tag}
+            {isLoadingEvents ? (
+              // Loading state - show skeleton cards
+              Array.from({ length: 3 }).map((_, index) => (
+                <TiltCard key={`skeleton-${index}`} className="h-full">
+                  <div className="h-full rounded-xl overflow-hidden bg-white/5 border border-white/10">
+                    <div className="h-48 bg-white/5 animate-pulse"></div>
+                    <div className="p-6">
+                      <div className="h-6 bg-white/10 rounded w-3/4 mb-4 animate-pulse"></div>
+                      <div className="h-4 bg-white/5 rounded w-1/2 mb-6 animate-pulse"></div>
+                      <div className="h-8 bg-white/5 rounded w-full animate-pulse"></div>
                     </div>
                   </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-white mb-2">{event.title}</h3>
-                    <p className="text-white/70 mb-4 flex items-center gap-2">
-                      <Calendar className="w-4 h-4" /> {event.date}
-                    </p>
-                    <Link href={`/events/${index}`}>
-                      <motion.button 
-                        className="w-full py-2 text-center rounded bg-white/10 hover:bg-accent hover:text-primary transition-all duration-300 text-white"
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        Learn More
-                      </motion.button>
-                    </Link>
-                  </div>
-                </motion.div>
-              </TiltCard>
-            ))}
+                </TiltCard>
+              ))
+            ) : eventsError ? (
+              // Error state
+              <div className="col-span-3 text-center py-12">
+                <p className="text-white/70">{eventsError}</p>
+                <button 
+                  className="mt-4 px-6 py-2 bg-accent/10 border border-accent/30 text-accent rounded-lg hover:bg-accent/20"
+                  onClick={() => window.location.reload()}
+                >
+                  Retry
+                </button>
+              </div>
+            ) : events.length > 0 ? (
+              // Data loaded successfully
+              events.map((event, index) => (
+                <TiltCard key={event.id} className="h-full">
+                  <motion.div 
+                    className="h-full rounded-xl overflow-hidden bg-white/5 border border-white/10 hover:border-accent/30 transition-all duration-300"
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={isEventsInView ? { opacity: 1, y: 0 } : {}}
+                    transition={{ delay: 0.3 + index * 0.1, duration: 0.6 }}
+                    whileHover={{ y: -5 }}
+                  >
+                    <div className="relative h-48 overflow-hidden">
+                      <Image 
+                        src={
+                          event.image_url 
+                            ? `${(process.env.NEXT_PUBLIC_IMG_URL || '').replace(/\/+$/, '')}/${event.image_url.replace(/^\/+/, '')}`
+                            : "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1920&auto=format&fit=crop"
+                        } 
+                        alt={event.name || `Event`}
+                        fill
+                        className="object-cover transition-transform duration-700 hover:scale-110"
+                      />
+                      <div className="absolute top-4 left-4 bg-accent/90 text-primary text-xs font-bold px-3 py-1 rounded-full">
+                        {event.mode} {/* Using mode instead of type */}
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold text-white mb-2">{event.name}</h3>
+                      <div className="space-y-2 mb-4">
+                        <p className="text-white/70 flex items-center gap-2">
+                          <Calendar className="w-4 h-4" /> {formatEventDate(event.date)}
+                        </p>
+                        <p className="text-white/70 flex items-center gap-2 text-sm">
+                          <MapPin className="w-4 h-4" /> {event.venue}
+                        </p>
+                      </div>
+                      <Link href={event.link || `/events/${event.id}`}>
+                        <motion.button 
+                          className="w-full py-2 text-center rounded bg-white/10 hover:bg-accent hover:text-primary transition-all duration-300 text-white"
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          Learn More
+                        </motion.button>
+                      </Link>
+                    </div>
+                  </motion.div>
+                </TiltCard>
+              ))
+            ) : (
+              // No events found
+              <div className="col-span-3 text-center py-12">
+                <p className="text-white/70">No upcoming events found</p>
+                <Link href="/events">
+                  <button 
+                    className="mt-4 px-6 py-2 bg-accent/10 border border-accent/30 text-accent rounded-lg hover:bg-accent/20"
+                  >
+                    View Past Events
+                  </button>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </AnimatedSection>

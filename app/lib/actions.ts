@@ -5,6 +5,18 @@ import { Member, UpcomingEvent } from './definitions';
 import { formatDateToLocal } from './utils';
 import { Achievement } from '../page';
 
+// Define Event type that matches your database schema
+export type Event = {
+  name: string;
+  id: string;
+  date: string;
+  description: string;
+  image_url: string;
+  venue: string;
+  mode: string;
+  link: string;
+};
+
 export type State = {
   errors?: {
     customerId?: string[];
@@ -123,5 +135,23 @@ export async function fetchAchievements(): Promise<Achievement[]> {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch achievements');
+  }
+}
+
+export async function fetchTopEvents(limit: number = 3): Promise<Event[]> {
+  try {
+    // Fetch recent events from your database using SQL
+    const data = await sql<Event>`
+      SELECT id, name, date, description, image_url, venue, mode, link
+      FROM events
+      WHERE date >= CURRENT_DATE
+      ORDER BY date ASC
+      LIMIT ${limit}
+    `;
+    
+    return data.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch events');
   }
 }
