@@ -1,6 +1,9 @@
 'use client';
-import { useEffect } from 'react';
+
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Calendar, MapPin, Clock, Tag, X, ExternalLink, ImageIcon } from 'lucide-react';
 
 interface EventModalProps {
   event: any;
@@ -8,90 +11,231 @@ interface EventModalProps {
 }
 
 export default function EventModal({ event, onClose }: EventModalProps) {
+  const [imgError, setImgError] = useState(false);
+  
   useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         onClose();
       }
     };
+    
+    // Prevent scrolling of background content
+    document.body.style.overflow = 'hidden';
     document.addEventListener('keydown', handleEsc);
+    
     return () => {
+      document.body.style.overflow = 'auto';
       document.removeEventListener('keydown', handleEsc);
     };
   }, [onClose]);
 
+  // Animation variants
+  const backdropVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { duration: 0.3 }
+    },
+    exit: { 
+      opacity: 0,
+      transition: { delay: 0.2, duration: 0.3 }
+    }
+  };
+  
+  const modalVariants = {
+    hidden: { 
+      opacity: 0,
+      scale: 0.8,
+      y: 20
+    },
+    visible: { 
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: { 
+        type: "spring", 
+        damping: 25, 
+        stiffness: 300,
+        duration: 0.4
+      }
+    },
+    exit: { 
+      opacity: 0,
+      scale: 0.9,
+      y: 10,
+      transition: { duration: 0.3 }
+    }
+  };
+
+  const contentVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { 
+        type: "spring", 
+        damping: 25, 
+        stiffness: 200
+      }
+    }
+  };
+
   return (
-    <div
-      onClick={onClose}
-      className="fixed inset-0 z-50 flex w-full flex-wrap items-center justify-center bg-black bg-opacity-50 px-6"
-    >
-      <div
-        className="relative w-full max-w-2xl transform overflow-hidden rounded-lg border bg-gray-800 p-6 text-white shadow-lg transition duration-300 ease-in-out motion-safe:hover:scale-105 sm:max-w-md"
-        onClick={(e) => e.stopPropagation()} // Prevent modal close on inner click
+    <AnimatePresence>
+      <motion.div
+        className="fixed inset-0 z-50 flex items-center justify-center px-4 backdrop-blur-sm"
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        variants={backdropVariants}
+        onClick={onClose}
       >
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute right-2 top-2 rounded-md p-2 text-red-600 hover:bg-gray-700 hover:text-red-800 focus:text-accent focus:outline-none focus:ring-2 focus:ring-inset"
+        <div className="absolute inset-0 bg-black/60" />
+        
+        <motion.div
+          className="relative w-full max-w-xl bg-gradient-to-b from-[#151f38] to-[#0d1526] rounded-xl overflow-hidden shadow-2xl border border-white/10 z-10"
+          variants={modalVariants}
+          onClick={(e) => e.stopPropagation()}
         >
-          <span className="sr-only">Close modal</span>
-          <svg
-            className="h-6 w-6"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            aria-hidden="true"
+          {/* Close button with hover effect */}
+          <motion.button
+            className="absolute right-3 top-3 z-20 bg-black/40 backdrop-blur-md rounded-full p-1.5 border border-white/10 text-white/80 hover:text-white"
+            onClick={onClose}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
+            <X size={18} />
+          </motion.button>
 
-        <Image
-          className="mx-auto mb-4 rounded-t-lg"
-          src={event.image_url}
-          alt="event image"
-          width={600}
-          height={400}
-          layout="responsive" // Makes the image responsive
-        />
+          {/* Image section with gradient overlay */}
+          <div className="relative h-52 md:h-64 w-full">
+            {imgError ? (
+              <div className="h-full w-full bg-gradient-to-r from-blue-900/50 to-purple-900/50 flex flex-col items-center justify-center">
+                <ImageIcon className="w-16 h-16 text-white/30 mb-3" />
+                <p className="text-white/60">Image not available</p>
+              </div>
+            ) : (
+              <Image
+                src={event.image_url || '/events/default-event.jpg'}
+                alt={event.name}
+                fill
+                className="object-cover"
+                onError={() => setImgError(true)}
+              />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-[#151f38]" />
+            
+            {/* Event mode badge */}
+            <motion.div 
+              className="absolute top-4 left-4 bg-accent/90 backdrop-blur-sm text-primary text-xs font-semibold px-3 py-1.5 rounded-full"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              {event.mode}
+            </motion.div>
+          </div>
 
-        <h2 className="mb-4 text-center text-2xl font-bold tracking-tight text-white">
-          {event.name}
-        </h2>
-        <p className="mb-2 text-sm font-semibold">
-          <strong>Date:</strong> {event.date}
-        </p>
-        <p className="mb-2 text-sm font-semibold">
-          <strong>Time:</strong> {event.time}
-        </p>
-        <p className="mb-2 text-sm font-semibold">
-          <strong>Venue:</strong> {event.venue}
-        </p>
-        <p className="mb-2 text-sm font-semibold">
-          <strong>Mode:</strong> {event.mode}
-        </p>
-        <p className="mb-2 text-sm font-semibold">
-          <strong>Fee:</strong> {event.fee === 0 ? 'Free' : `₹ ${event.fee}`}
-        </p>
-        <p className="mb-4 text-sm">
-          <strong>Description:</strong> {event.description}
-        </p>
+          <motion.div 
+            className="p-5 md:p-7"
+            variants={contentVariants}
+          >
+            {/* Title with animation */}
+            <motion.h2 
+              className="mb-6 text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/80"
+              variants={itemVariants}
+            >
+              {event.name}
+            </motion.h2>
 
-        <a
-          href={event.link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-        >
-          Register
-        </a>
-      </div>
-    </div>
+            {/* Event details with icons */}
+            <motion.div 
+              className="space-y-4 mb-6"
+              variants={contentVariants}
+            >
+              <motion.div className="flex items-center gap-3" variants={itemVariants}>
+                <div className="p-2 bg-white/5 rounded-full">
+                  <Calendar size={16} className="text-accent" />
+                </div>
+                <span className="text-white/80">{event.date}</span>
+              </motion.div>
+              
+              <motion.div className="flex items-center gap-3" variants={itemVariants}>
+                <div className="p-2 bg-white/5 rounded-full">
+                  <Clock size={16} className="text-accent" />
+                </div>
+                <span className="text-white/80">{event.time || "TBA"}</span>
+              </motion.div>
+              
+              <motion.div className="flex items-center gap-3" variants={itemVariants}>
+                <div className="p-2 bg-white/5 rounded-full">
+                  <MapPin size={16} className="text-accent" />
+                </div>
+                <span className="text-white/80">{event.venue}</span>
+              </motion.div>
+              
+              <motion.div className="flex items-center gap-3" variants={itemVariants}>
+                <div className="p-2 bg-white/5 rounded-full">
+                  <Tag size={16} className="text-accent" />
+                </div>
+                <span className="text-white/80">
+                  {Number(event.fee) > 0 ? `₹${event.fee}` : "Free Entry"}
+                </span>
+              </motion.div>
+            </motion.div>
+
+            {/* Event description */}
+            <motion.div 
+              className="mb-7 bg-white/5 border border-white/10 rounded-lg p-4"
+              variants={itemVariants}
+            >
+              <h3 className="text-white/90 font-medium mb-2">Description</h3>
+              <p className="text-white/70 text-sm leading-relaxed">
+                {event.description || "No description available for this event."}
+              </p>
+            </motion.div>
+
+            {/* Registration button with animation */}
+            <motion.div variants={itemVariants}>
+              <motion.a
+                href={event.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full text-center py-3 px-6 bg-accent text-primary font-medium rounded-lg flex items-center justify-center gap-2 group"
+                whileHover={{ 
+                  scale: 1.02,
+                  boxShadow: "0 10px 25px -5px rgba(59, 130, 246, 0.3)"
+                }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Register for Event
+                <motion.span
+                  animate={{ x: [0, 5, 0] }}
+                  transition={{ 
+                    repeat: Infinity, 
+                    duration: 1.5,
+                    repeatType: "loop" 
+                  }}
+                >
+                  <ExternalLink size={16} />
+                </motion.span>
+              </motion.a>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 }
