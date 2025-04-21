@@ -231,6 +231,44 @@ export async function fetchTopAchievements(limit: number = 3): Promise<Achieveme
   }
 }
 
+/**
+ * Fetches all achievements from the database ordered by date
+ */
+export async function fetchAllAchievements(): Promise<Achievement[]> {
+  try {
+    const data = await sql<Achievement>`
+      SELECT id, name, description, date, image_url, type, 
+             TO_CHAR(date, 'YYYY') as year
+      FROM achievements
+      ORDER BY date DESC
+    `;
+    
+    console.log(`Fetched ${data.rows.length} achievements`);
+    return data.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch achievements');
+  }
+}
+
+/**
+ * Fetches a single achievement by ID
+ */
+export async function fetchAchievementById(id: string): Promise<Achievement | null> {
+  try {
+    const data = await sql<Achievement>`
+      SELECT id, name, description, date, image_url, type
+      FROM achievements
+      WHERE id = ${id}
+    `;
+    
+    return data.rows[0] || null;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch achievement');
+  }
+}
+
 // Add this type if you don't already have it
 export type Achievement = {
   id: string;

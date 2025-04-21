@@ -12,6 +12,7 @@ const navItems = [
   { name: 'EVENTS', href: '/events' },
   { name: 'EXECOM', href: '/execom/2024' },
   { name: 'ABOUT', href: '/about' },
+  { name: 'ACHIEVEMENTS', href: '/achievements' },
 ];
 
 export default function Header() {
