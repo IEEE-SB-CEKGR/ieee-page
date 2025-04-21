@@ -27,7 +27,7 @@ export type Achievement = {
   date: string;
   description: string;
   image_url: string;
-  link: string;
+  link: string | undefined;
 };
 
 const images = [

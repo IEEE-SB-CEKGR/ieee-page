@@ -1,8 +1,10 @@
 'use client';
 
-import React from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { fetchTimeline, fetchTopAchievements } from '@/app/lib/actions';
+import type { Timeline, Achievement } from '@/app/lib/actions';
 
 // Animation variants
 const fadeIn = {
@@ -37,6 +39,75 @@ const staggerContainer = {
 };
 
 export default function AboutPage() {
+  // Add state for timeline data
+  const [timelineData, setTimelineData] = useState<Timeline[]>([]);
+  const [isLoadingTimeline, setIsLoadingTimeline] = useState(true);
+  const [timelineError, setTimelineError] = useState<string | null>(null);
+  
+  // New state for achievements
+  const [achievementsData, setAchievementsData] = useState<Achievement[]>([]);
+  const [isLoadingAchievements, setIsLoadingAchievements] = useState(true);
+  const [achievementsError, setAchievementsError] = useState<string | null>(null);
+  
+  // Fetch timeline data on component mount
+  useEffect(() => {
+    const loadTimelineData = async () => {
+      try {
+        setIsLoadingTimeline(true);
+        const data = await fetchTimeline();
+        console.log('Timeline data:', data);
+        setTimelineData(data);
+      } catch (error) {
+        console.error('Error fetching timeline:', error);
+        setTimelineError('Failed to load timeline data');
+      } finally {
+        setIsLoadingTimeline(false);
+      }
+    };
+    
+    loadTimelineData();
+  }, []);
+
+  // Add new effect to fetch achievements data
+  useEffect(() => {
+    const loadAchievementsData = async () => {
+      try {
+        setIsLoadingAchievements(true);
+        const data = await fetchTopAchievements(3);
+        console.log('Achievements data:', data);
+        setAchievementsData(data);
+      } catch (error) {
+        console.error('Error fetching achievements:', error);
+        setAchievementsError('Failed to load achievements data');
+      } finally {
+        setIsLoadingAchievements(false);
+      }
+    };
+    
+    loadAchievementsData(); // Make sure this function is called
+  }, []);
+
+  // Helper function for image URLs
+  const processImageUrl = (url: string) => {
+    if (!url) return '/images/placeholders/default-achievement.jpg';
+    
+    try {
+      if (/^https?:\/\//i.test(url)) return url;
+      if (url.startsWith('data:')) return url;
+      
+      const baseUrl = process.env.NEXT_PUBLIC_IMG_URL || '';
+      if (!baseUrl) return url;
+      
+      const cleanBaseUrl = baseUrl.replace(/\/+$/, '');
+      const cleanImagePath = url.replace(/^\/+/, '');
+      
+      return `${cleanBaseUrl}/${cleanImagePath}`;
+    } catch (error) {
+      console.error('Error processing image URL:', error);
+      return '/images/placeholders/default-achievement.jpg';
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 pt-24 pb-12 sm:px-6 lg:px-8">
       {/* Hero Section */}
@@ -318,7 +389,7 @@ export default function AboutPage() {
           variants={fadeIn}
           className="text-white/80 text-center max-w-3xl mx-auto mb-12 px-4"
         >
-            Journey through our chapter&apos;s memorable events, achievements, and milestones over the years.
+          Journey through our chapter&apos;s memorable events, achievements, and milestones over the years.
         </motion.p>
         
         {/* Timeline */}
@@ -332,43 +403,54 @@ export default function AboutPage() {
             transition={{ duration: 1.5 }}
           />
           
-          {/* Timeline Items - more compact on mobile */}
+          {/* Timeline Items - Dynamic from server data */}
           <div className="space-y-24 md:space-y-32 relative">
-            <TimelineItem 
-              year="2024"
-              title="Technical Innovation Workshop"
-              description="Hosted a 3-day workshop on AI and Machine Learning with industry experts from Google and Microsoft, attracting over 300 participants from various colleges."
-              imageSrc="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3"
-              isLeft={true}
-              delay={0.2}
-            />
-            
-            <TimelineItem 
-              year="2023"
-              title="National Robotics Competition"
-              description="Our team secured first place in the National Robotics Competition, showcasing innovative solutions to real-world problems using autonomous robots."
-              imageSrc="https://images.unsplash.com/photo-1581092921461-eab10e6d42b2?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3"
-              isLeft={false}
-              delay={0.4}
-            />
-            
-            <TimelineItem 
-              year="2022"
-              title="Community Outreach Program"
-              description="Organized technology awareness camps in five rural schools, introducing over 500 students to basic programming, electronics, and the potential of technology careers."
-              imageSrc="https://images.unsplash.com/photo-1517486808906-6ca8b3f8e1c1?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3"
-              isLeft={true}
-              delay={0.6}
-            />
-            
-            <TimelineItem 
-              year="2021"
-              title="IEEE Day Celebration"
-              description="Celebrated IEEE Day with a series of technical workshops, panel discussions with industry experts from top tech companies, and interactive networking sessions."
-              imageSrc="https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3"
-              isLeft={false}
-              delay={0.8}
-            />
+            {isLoadingTimeline ? (
+              // Loading state
+              Array.from({ length: 3 }).map((_, index) => (
+                <motion.div 
+                  key={`skeleton-${index}`}
+                  initial={{ opacity: 0.4 }}
+                  animate={{ opacity: [0.4, 0.7, 0.4] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                  className="flex items-center relative"
+                >
+                  <div className="absolute left-1/2 transform -translate-x-1/2 z-10 bg-blue-500/50 rounded-full h-14 w-14"></div>
+                  <div className={`w-full flex ${index % 2 === 0 ? 'justify-start' : 'justify-end'} md:px-0 px-4`}>
+                    <div className={`md:w-5/12 w-full bg-blue-900/30 p-6 rounded-lg h-48 ${index % 2 === 0 ? 'mr-auto' : 'ml-auto'}`}></div>
+                  </div>
+                </motion.div>
+              ))
+            ) : timelineError ? (
+              // Error state
+              <div className="text-center py-12">
+                <p className="text-white/70 mb-4">{timelineError}</p>
+                <button 
+                  onClick={() => window.location.reload()}
+                  className="px-6 py-2 bg-blue-500/10 border border-blue-500/30 text-blue-400 rounded-lg hover:bg-blue-500/20"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : timelineData.length > 0 ? (
+              // Data loaded successfully
+              timelineData.map((item, index) => (
+                <TimelineItem 
+                  key={item.id}
+                  year={item.year}
+                  title={item.title}
+                  description={item.description}
+                  imageSrc={item.image_url}
+                  isLeft={item.is_left}
+                  delay={0.2 + index * 0.1}
+                />
+              ))
+            ) : (
+              // No data found
+              <div className="text-center py-12">
+                <p className="text-white/70">No timeline records found</p>
+              </div>
+            )}
           </div>
         </div>
       </motion.section>
@@ -410,85 +492,98 @@ export default function AboutPage() {
           variants={staggerContainer}
           className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 relative z-10 px-4 md:px-0"
         >
-          {achievements.map((achievement, index) => (
-            <motion.div
-              key={index}
-              variants={{
-                hidden: { opacity: 0, y: 50 },
-                visible: { 
-                  opacity: 1, 
-                  y: 0,
-                  transition: {
-                    delay: index * 0.2,
-                    duration: 0.5,
-                    ease: "easeOut"
-                  }
-                }
-              }}
-              className="group relative rounded-xl overflow-hidden"
-            >
-              {/* Achievement Card */}
-              <div className="bg-blue-900/30 backdrop-blur-sm border border-blue-500/20 rounded-xl overflow-hidden shadow-xl transition-all duration-300 group-hover:shadow-blue-500/20 group-hover:shadow-2xl h-full flex flex-col">
-                
-                {/* Badge */}
-                <div className="absolute top-4 right-4 z-20">
-                  <motion.div 
-                    className="bg-gradient-to-r from-blue-500/90 to-cyan-500/90 backdrop-blur-sm text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-full shadow-lg"
-                    whileHover={{ scale: 1.05 }}
-                  >
-                    {index === 0 ? "Regional Award" : index === 1 ? "Competition" : "Growth"}
-                  </motion.div>
-                </div>
-                
-                {/* Image Container */}
-                <div className="relative h-48 w-full overflow-hidden">
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-t from-blue-900 via-blue-900/40 to-transparent opacity-60 z-10 group-hover:opacity-40 transition-opacity duration-300"
-                    whileHover={{ opacity: 0.3 }}
-                  />
-                  <motion.div 
-                    className="h-full w-full"
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.4 }}
-                  >
-                    <Image 
-                      src={achievement.image} 
-                      alt={achievement.title} 
-                      fill
-                      unoptimized
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                    />
-                  </motion.div>
+          {achievementsData && achievementsData.length > 0 ? (
+            // Data loaded successfully
+            achievementsData.map((achievement, index) => (
+              <motion.div
+                key={achievement.id || index}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  delay: index * 0.2,
+                  duration: 0.5,
+                  ease: "easeOut"
+                }}
+                className="group relative rounded-xl overflow-hidden h-full"
+              >
+                {/* Achievement Card with complete content - increased height */}
+                <div className="bg-blue-900/30 backdrop-blur-sm border border-blue-500/20 rounded-xl overflow-hidden shadow-xl transition-all duration-300 group-hover:shadow-blue-500/20 group-hover:shadow-2xl h-full flex flex-col">
                   
-                  <motion.div 
-                    className="absolute inset-x-0 bottom-0 z-20 p-4"
-                    initial={{ y: 20, opacity: 0 }}
-                    whileInView={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.2 + index * 0.1 }}
-                  >
-                    <h3 className="text-xl font-bold text-white mb-1 group-hover:text-cyan-300 transition-colors duration-300">
-                      {achievement.title}
-                    </h3>
-                  </motion.div>
+                  {/* Badge showing achievement type - enhanced style */}
+                  <div className="absolute top-4 right-4 z-20">
+                    <motion.div 
+                      className="bg-gradient-to-r from-blue-500/90 to-cyan-500/90 backdrop-blur-sm text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-full shadow-lg border border-white/10"
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      {achievement.type || "Achievement"}
+                    </motion.div>
+                  </div>
+                  
+                  {/* Image Container - increased height */}
+                  <div className="relative h-56 md:h-64 w-full overflow-hidden">
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-t from-blue-900 via-blue-900/40 to-transparent opacity-60 z-10 group-hover:opacity-40 transition-opacity duration-300"
+                      whileHover={{ opacity: 0.3 }}
+                    />
+                    <motion.div 
+                      className="h-full w-full"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ duration: 0.4 }}
+                    >
+                      <Image 
+                        src={processImageUrl(achievement.image_url)}
+                        alt={achievement.name}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/images/placeholders/default-achievement.jpg';
+                        }}
+                      />
+                    </motion.div>
+                    
+                    {/* Enhanced title overlay with gradient */}
+                    <motion.div 
+                      className="absolute inset-x-0 bottom-0 z-20 p-4 bg-gradient-to-t from-blue-900/90 to-transparent pt-12"
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.2 + index * 0.1 }}
+                    >
+                      <h3 className="text-xl font-bold text-white group-hover:text-cyan-300 transition-colors duration-300">
+                        {achievement.name}
+                      </h3>
+                    </motion.div>
+                  </div>
+                  
+                  {/* Content - improved spacing and typography */}
+                  <div className="p-5 md:p-7 flex-grow flex flex-col">
+                    <p className="text-white/80 flex-grow text-sm md:text-base leading-relaxed">
+                      {achievement.description}
+                    </p>
+                    
+                    {/* Enhanced call to action */}
+                    <div className="mt-6 pt-4 border-t border-blue-500/20">
+                      <motion.div
+                        className="flex items-center gap-2 text-cyan-300 group-hover:text-cyan-400 transition-colors duration-300"
+                        whileHover={{ x: 5 }}
+                      >
+                        <span className="text-sm font-medium">Read full story</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                          <path fillRule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8"/>
+                        </svg>
+                      </motion.div>
+                    </div>
+                  </div>
                 </div>
-                
-                {/* Content */}
-                <div className="p-4 md:p-6 flex-grow flex flex-col">
-                  <p className="text-white/80 flex-grow text-sm md:text-base">{achievement.description}</p>
-                  <motion.div
-                    className="flex items-center gap-2 mt-4 md:mt-6 text-cyan-300 group-hover:text-cyan-400"
-                    whileHover={{ x: 5 }}
-                  >
-                    <span className="text-sm font-medium">Read the full story</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                      <path fillRule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8"/>
-                    </svg>
-                  </motion.div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))
+          ) : (
+            // No data found
+            <div className="col-span-3 text-center py-12">
+              <p className="text-white/70">No achievements found</p>
+            </div>
+          )}
         </motion.div>
         
         <motion.div
@@ -523,6 +618,45 @@ function TimelineItem({ year, title, description, imageSrc, isLeft, delay }: {
   isLeft: boolean;
   delay: number;
 }) {
+  const [imgError, setImgError] = useState(false);
+  
+  // More robust image source processing
+  const processedImageSrc = useMemo(() => {
+    // Handle empty image source
+    if (!imageSrc) return '/images/placeholders/default-event.jpg';
+    
+    try {
+      // If it already starts with http(s), it's an absolute URL
+      if (/^https?:\/\//i.test(imageSrc)) {
+        return imageSrc;
+      }
+      
+      // If it's a data URL
+      if (imageSrc.startsWith('data:')) {
+        return imageSrc;
+      }
+      
+      // For all paths (including those starting with /), prepend the base URL
+      // This handles images hosted on external servers properly
+      const baseUrl = process.env.NEXT_PUBLIC_IMG_URL || '';
+      if (!baseUrl) {
+        // If no base URL is configured, use the path as-is from the public directory
+        return imageSrc;
+      }
+      
+      // Clean up both the base URL and image path to ensure no double slashes
+      const cleanBaseUrl = baseUrl.replace(/\/+$/, ''); // Remove trailing slashes
+      const cleanImagePath = imageSrc.replace(/^\/+/, ''); // Remove leading slashes
+      
+      return `${cleanBaseUrl}/${cleanImagePath}`;
+    } catch (error) {
+      console.error('Error processing image URL:', error);
+      return '/images/placeholders/default-event.jpg';
+    }
+  }, [imageSrc]);
+
+  console.log('Timeline image source:', { original: imageSrc, processed: processedImageSrc });
+
   return (
     <motion.div 
       initial="hidden"
@@ -548,37 +682,32 @@ function TimelineItem({ year, title, description, imageSrc, isLeft, delay }: {
         >
           <h3 className="text-xl font-semibold text-blue-300 mb-2">{title}</h3>
           <p className="text-white/80 mb-4 text-sm md:text-base">{description}</p>
-          <div className="relative h-36 md:h-48 rounded-md overflow-hidden">
-            <Image 
-              src={imageSrc} 
-              alt={title} 
-              fill
-              unoptimized
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 40vw"
-            />
+          
+          {/* Enhanced image container with better error handling */}
+          <div className="relative h-36 md:h-48 rounded-md overflow-hidden bg-blue-900/50">
+            {imgError ? (
+              <div className="flex flex-col items-center justify-center h-full text-white/70">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mb-2">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+                Image not available
+              </div>
+            ) : (
+              <Image 
+                src={processedImageSrc} 
+                alt={title} 
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 40vw"
+                onError={() => setImgError(true)}
+                loading="lazy"
+              />
+            )}
           </div>
         </motion.div>
       </div>
     </motion.div>
   );
 }
-
-// Sample achievement data
-const achievements = [
-  {
-    title: "Best Student Chapter Award",
-    description: "Recognized as the best IEEE student chapter in the region for outstanding technical events and community engagement.",
-    image: "https://images.unsplash.com/photo-1611432579699-484f7990b127?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3"
-  },
-  {
-    title: "Innovation Challenge Winners",
-    description: "Won first place in the IEEE Innovation Challenge with our sustainable energy solution project that aids rural communities.",
-    image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3"
-  },
-  {
-    title: "Record Membership Growth",
-    description: "Successfully grew our chapter membership by 150% through engaging activities, workshops and valuable networking opportunities.",
-    image: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3"
-  }
-];

@@ -3,7 +3,6 @@
 import { sql } from '@vercel/postgres';
 import { Member, UpcomingEvent } from './definitions';
 import { formatDateToLocal } from './utils';
-import { Achievement } from '../page';
 
 // Define Event type that matches your database schema
 export type Event = {
@@ -53,6 +52,17 @@ export type EditFormState = {
   };
   message?: string | null;
   imageUrl: string;
+};
+
+// Update the Timeline type to match your database schema
+export type Timeline = {
+  id: string;
+  year: string; // Will be extracted from the date
+  title: string; // Will come from achievement name
+  description: string; // From achievement description
+  image_url: string; // From achievement image_url
+  is_left: boolean; // Added programmatically
+  achievement_id: string; // Foreign key to achievement
 };
 
 export async function fetchStats(): Promise<Stats> {
@@ -162,3 +172,74 @@ export async function fetchTopEvents(limit: number = 3): Promise<Event[]> {
     throw new Error('Failed to fetch events');
   }
 }
+
+/**
+ * Fetches timeline data from the database with achievement details
+ */
+export async function fetchTimeline(): Promise<Timeline[]> {
+  try {
+    // Join timeline with achievement tables to get complete data
+    const data = await sql`
+      SELECT 
+        t.id,
+        TO_CHAR(a.date, 'YYYY') as year, /* Using a.date instead of t.date */
+        a.name as title,
+        a.description,
+        a.image_url,
+        t.achievement_id
+      FROM 
+        timeline t
+      JOIN 
+        achievements a ON t.achievement_id = a.id
+      ORDER BY 
+        a.date DESC
+    `;
+    
+    // Explicitly add is_left property to alternate items
+    return data.rows.map((item, index): Timeline => ({
+      id: item.id,
+      year: item.year,
+      title: item.title,
+      description: item.description,
+      image_url: item.image_url,
+      achievement_id: item.achievement_id,
+      is_left: index % 2 === 0 // Even indexes are left, odd are right
+    }));
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch timeline data');
+  }
+}
+
+/**
+ * Fetches top achievements from the database ordered by most recent date
+ */
+export async function fetchTopAchievements(limit: number = 3): Promise<Achievement[]> {
+  try {
+    const data = await sql<Achievement>`
+      SELECT id, name, description, date, image_url, type
+      FROM achievements
+      ORDER BY date DESC
+      LIMIT ${limit}
+    `;
+    
+    console.log('Achievements fetched from database:', data.rows);
+    return data.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch achievements');
+  }
+}
+
+// Add this type if you don't already have it
+export type Achievement = {
+  id: string;
+  name: string;
+  description: string;
+  date: string;
+  image_url: string;
+  type: string; // 'award' or 'achievement'
+  link?: string; // Optional, if you have a link for the achievement
+  created_at?: string; // Optional, if you have a created_at field
+  updated_at?: string; // Optional, if you have an updated_at field
+};
