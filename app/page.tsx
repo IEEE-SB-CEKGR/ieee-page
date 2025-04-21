@@ -2,7 +2,6 @@
 
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Social from '@/app/ui/home/Social';
-import Stats from '@/app/ui/home/Stats';
 import '@/app/ui/global.css';
 import HeroCarousel from './ui/home/HeroCarousel';
 import { EmblaOptionsType } from 'embla-carousel';
@@ -17,8 +16,8 @@ import CountUp from '@/app/ui/home/CountUp';
 import Image from 'next/image';
 import TypewriterReveal from '@/app/ui/home/TypewriterReveal';
 import CircuitText from '@/app/ui/home/CircuitText';
-import { fetchAchievements, fetchTopEvents } from '@/app/lib/actions';
-import type { Event } from '@/app/lib/actions';
+import { fetchAchievements, fetchTopEvents, fetchStats } from '@/app/lib/actions';
+import type { Event, Stats } from '@/app/lib/actions';
 
 // Define the Achievement type
 export type Achievement = {
@@ -90,6 +89,11 @@ export default function Page() {
   const [isLoadingEvents, setIsLoadingEvents] = useState(true);
   const [eventsError, setEventsError] = useState<string | null>(null);
 
+  // Add state for stats data
+  const [statsData, setStatsData] = useState<Stats>({ members: 0, events: 0, awards: 0, years: 0 });
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
+  const [statsError, setStatsError] = useState<string | null>(null);
+
   // Use the server action to fetch achievements
   useEffect(() => {
     const loadAchievements = async () => {
@@ -126,6 +130,25 @@ export default function Page() {
     };
     
     loadEvents();
+  }, []);
+
+  // Add this useEffect to fetch stats data
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        setIsLoadingStats(true);
+        const data = await fetchStats();
+        console.log("Stats data:", data);
+        setStatsData(data);
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+        setStatsError('Failed to load stats data');
+      } finally {
+        setIsLoadingStats(false);
+      }
+    };
+    
+    loadStats();
   }, []);
 
   // Format date for display
@@ -504,44 +527,75 @@ export default function Page() {
           
           {/* Stats cards with CountUp */}
           <div className="grid grid-cols-2 gap-6 md:grid-cols-4 lg:gap-8">
-            {[
-              { icon: Users, value: 500, label: "Members", suffix: "+" },
-              { icon: Calendar, value: 50, label: "Events", suffix: "+" },
-              { icon: Award, value: 25, label: "Awards", suffix: "+" },
-              { icon: BookOpen, value: 10, label: "Years", suffix: "+" },
-            ].map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                className="flex flex-col items-center p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-accent/30 transition-all duration-300"
-                initial={{ opacity: 0, y: 20 }}
-                animate={isStatsInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ 
-                  delay: 0.2 + index * 0.1,
-                  duration: 0.5,
-                  ease: "easeOut"
-                }}
-                whileHover={{ y: -5 }}
-              >
-                <motion.div 
-                  className="mb-4 p-3 rounded-full bg-accent/10"
-                  initial={{ scale: 0.8 }}
-                  animate={isStatsInView ? { scale: 1 } : {}}
-                  transition={{ 
-                    delay: 0.3 + index * 0.1,
-                    duration: 0.4,
-                    type: "spring",
-                    stiffness: 200
-                  }}
+            {isLoadingStats ? (
+              // Loading state - show skeleton cards
+              Array.from({ length: 4 }).map((_, index) => (
+                <motion.div
+                  key={`skeleton-${index}`}
+                  className="flex flex-col items-center p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10"
+                  initial={{ opacity: 0.5 }}
+                  animate={{ opacity: [0.5, 0.8, 0.5] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
                 >
-                  <stat.icon className="w-6 h-6 text-accent" />
+                  <div className="mb-4 p-3 rounded-full bg-accent/10">
+                    <div className="w-6 h-6 bg-accent/30 rounded-full animate-pulse" />
+                  </div>
+                  <div className="h-8 bg-white/10 rounded w-1/2 mb-2 animate-pulse" />
+                  <div className="h-4 bg-white/5 rounded w-3/4 animate-pulse" />
                 </motion.div>
-                <div className="text-4xl sm:text-5xl font-bold text-accent mb-2 flex items-center">
-                  <CountUp end={stat.value} duration={2000} />
-                  <span>{stat.suffix}</span>
-                </div>
-                <div className="text-white/70 text-center font-medium">{stat.label}</div>
-              </motion.div>
-            ))}
+              ))
+            ) : statsError ? (
+              // Error state (full width across all columns)
+              <div className="col-span-4 text-center py-12">
+                <p className="text-white/70">{statsError}</p>
+                <button 
+                  className="mt-4 px-6 py-2 bg-accent/10 border border-accent/30 text-accent rounded-lg hover:bg-accent/20"
+                  onClick={() => window.location.reload()}
+                >
+                  Retry
+                </button>
+              </div>
+            ) : (
+              // Data loaded successfully - Map the stats to components with icons
+              [
+                { icon: Users, value: statsData.members, label: "Members", suffix: "+" },
+                { icon: Calendar, value: statsData.events, label: "Events", suffix: "+" },
+                { icon: Award, value: statsData.awards, label: "Awards", suffix: "+" },
+                { icon: BookOpen, value: statsData.years, label: "Years", suffix: "+" },
+              ].map((stat, index) => (
+                <motion.div
+                  key={stat.label}
+                  className="flex flex-col items-center p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-accent/30 transition-all duration-300"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={isStatsInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ 
+                    delay: 0.2 + index * 0.1,
+                    duration: 0.5,
+                    ease: "easeOut"
+                  }}
+                  whileHover={{ y: -5 }}
+                >
+                  <motion.div 
+                    className="mb-4 p-3 rounded-full bg-accent/10"
+                    initial={{ scale: 0.8 }}
+                    animate={isStatsInView ? { scale: 1 } : {}}
+                    transition={{ 
+                      delay: 0.3 + index * 0.1,
+                      duration: 0.4,
+                      type: "spring",
+                      stiffness: 200
+                    }}
+                  >
+                    <stat.icon className="w-6 h-6 text-accent" />
+                  </motion.div>
+                  <div className="text-4xl sm:text-5xl font-bold text-accent mb-2 flex items-center">
+                    <CountUp end={stat.value} duration={2000} />
+                    <span>{stat.suffix}</span>
+                  </div>
+                  <div className="text-white/70 text-center font-medium">{stat.label}</div>
+                </motion.div>
+              ))
+            )}
           </div>
         </div>
       </AnimatedSection>
