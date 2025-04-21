@@ -3,6 +3,7 @@
 import { sql } from '@vercel/postgres';
 import { Member, UpcomingEvent } from './definitions';
 import { formatDateToLocal } from './utils';
+import { Achievement } from '../page';
 
 export type State = {
   errors?: {
@@ -106,5 +107,21 @@ export async function filterMembersOnYear(year: string) {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch members.');
+  }
+}
+
+export async function fetchAchievements(): Promise<Achievement[]> {
+  try {
+    // Fetch achievements from your database using Vercel's SQL client
+    const data = await sql<Achievement>`
+      SELECT id, name, type, date, description, image_url, link
+      FROM achievements
+      ORDER BY date DESC
+    `;
+    
+    return data.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch achievements');
   }
 }

@@ -7,7 +7,7 @@ import '@/app/ui/global.css';
 import HeroCarousel from './ui/home/HeroCarousel';
 import { EmblaOptionsType } from 'embla-carousel';
 import { useInView } from 'framer-motion';
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronDown, Calendar, Users, Award, BookOpen, ArrowRight } from 'lucide-react';
 import AnimatedSection from '@/app/ui/home/AnimatedSection';
@@ -17,6 +17,18 @@ import CountUp from '@/app/ui/home/CountUp';
 import Image from 'next/image';
 import TypewriterReveal from '@/app/ui/home/TypewriterReveal';
 import CircuitText from '@/app/ui/home/CircuitText';
+import { fetchAchievements } from '@/app/lib/actions';
+
+// Define the Achievement type
+export type Achievement = {
+  id: string;
+  name: string;
+  type: string;
+  date: string;
+  description: string;
+  image_url: string;
+  link: string;
+};
 
 const images = [
   'https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=1920&auto=format&fit=crop',
@@ -66,6 +78,35 @@ export default function Page() {
   const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
+
+  // Add state for achievements data, loading, and errors
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [isLoadingAchievements, setIsLoadingAchievements] = useState(true);
+  const [achievementsError, setAchievementsError] = useState<string | null>(null);
+
+  // Use the server action
+  useEffect(() => {
+    const loadAchievements = async () => {
+      try {
+        setIsLoadingAchievements(true);
+        const data = await fetchAchievements();
+        console.log("Achievements data (home):", data);
+        setAchievements(data);
+      } catch (error) {
+        console.error('Error fetching achievements:', error);
+        setAchievementsError('Failed to load achievements data');
+      } finally {
+        setIsLoadingAchievements(false);
+      }
+    };
+    
+    loadAchievements();
+  }, []);
+
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).getFullYear().toString();
+  };
 
   return (
     <main className="relative overflow-hidden bg-gradient-to-b from-[#040D21] to-[#0A1A3A]">
@@ -638,98 +679,129 @@ export default function Page() {
             />
             
             <div className="space-y-16 md:space-y-32">
-              {[
-                {
-                  year: "2024",
-                  title: "Best Student Branch Award",
-                  description: "Recognized as the best IEEE student branch in the region for outstanding technical events and community engagement.",
-                  image: "https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?q=80&w=1920&auto=format&fit=crop",
-                  isLeft: true
-                },
-                {
-                  year: "2023",
-                  title: "Innovation Challenge Winners",
-                  description: "Won first place in the IEEE Innovation Challenge with our sustainable energy solution project that aids rural communities.",
-                  image: "https://images.unsplash.com/photo-1581091226033-c6e0f73f84b8?q=80&w=1920&auto=format&fit=crop",
-                  isLeft: false
-                },
-                {
-                  year: "2022",
-                  title: "Record Membership Growth",
-                  description: "Successfully grew our chapter membership by 150% through engaging activities, workshops and valuable networking opportunities.",
-                  image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1920&auto=format&fit=crop",
-                  isLeft: true
-                }
-              ].map((achievement, index) => (
-                <motion.div 
-                  key={achievement.title}
-                  className={`flex flex-col ${achievement.isLeft ? 'md:flex-row' : 'md:flex-row-reverse'} items-center gap-8 md:gap-16`}
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={isAchievementsInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ delay: 0.2 + index * 0.2, duration: 0.7 }}
-                >
-                  {/* Timeline Node - improved z-index and position */}
-                  <div className="hidden md:block absolute left-[50%] w-6 h-6 -ml-3 rounded-full border-2 border-accent bg-[#081630] z-10" />
-                  
-                  {/* Image Side - reduced width to create more space */}
-                  <div className="w-full md:w-[45%]">
-                    <TiltCard className="overflow-hidden rounded-xl border border-white/10 shadow-xl">
-                      <div className="relative h-60 w-full overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#081630] to-transparent opacity-60 z-10" />
-                        <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          transition={{ duration: 0.6 }}
-                          className="w-full h-full"
-                        >
-                          <Image 
-                            src={achievement.image || "/globe/home1.jpg"} 
-                            alt={achievement.title}
-                            fill
-                            className="object-cover"
-                          />
-                        </motion.div>
-                        <div className="absolute top-4 left-4 z-20">
-                          <span className="px-4 py-1 bg-accent text-primary text-sm font-medium rounded-full">
-                            {achievement.year}
-                          </span>
-                        </div>
+              {isLoadingAchievements ? (
+                // Loading state - show skeleton cards
+                Array.from({ length: 3 }).map((_, index) => (
+                  <motion.div 
+                    key={`skeleton-${index}`}
+                    className={`flex flex-col ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} items-center gap-8 md:gap-16`}
+                    initial={{ opacity: 0.5 }}
+                    animate={{ opacity: [0.5, 0.8, 0.5] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    {/* Timeline Node */}
+                    <div className="hidden md:block absolute left-[50%] w-6 h-6 -ml-3 rounded-full border-2 border-accent/30 bg-[#081630] z-10" />
+                    
+                    {/* Image Skeleton */}
+                    <div className="w-full md:w-[45%]">
+                      <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5 h-60 animate-pulse" />
+                    </div>
+                    
+                    {/* Content Skeleton */}
+                    <div className="w-full md:w-[45%] text-center md:text-left">
+                      <div className="p-6 md:p-0 md:px-4">
+                        <div className="h-8 bg-white/10 rounded w-3/4 mb-4 animate-pulse" />
+                        <div className="h-4 bg-white/5 rounded w-full mb-2 animate-pulse" />
+                        <div className="h-4 bg-white/5 rounded w-5/6 mb-2 animate-pulse" />
+                        <div className="h-4 bg-white/5 rounded w-4/6 mb-6 animate-pulse" />
+                        <div className="h-6 bg-accent/10 rounded w-32 animate-pulse" />
                       </div>
-                    </TiltCard>
-                  </div>
-                  
-                  {/* Content Side - reduced width and added proper padding */}
-                  <div className="w-full md:w-[45%] text-center md:text-left">
-                    <motion.div 
-                      className="p-6 md:p-0 md:px-4"
-                      whileHover={{ x: achievement.isLeft ? 10 : -10 }}
-                      transition={{ type: "spring", stiffness: 300 }}
-                    >
-                      <h3 className="text-2xl font-bold text-white mb-4">{achievement.title}</h3>
-                      <p className="text-white/70 leading-relaxed">{achievement.description}</p>
-                      
-                      <motion.div 
-                        className="mt-6 inline-block"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <Link href="/about" className="text-accent font-medium flex items-center gap-2 group">
-                          Read More 
-                          <motion.span
-                            animate={{ x: [0, 5, 0] }}
-                            transition={{ 
-                              duration: 1.5, 
-                              repeat: Infinity, 
-                              repeatDelay: 1 
-                            }}
+                    </div>
+                  </motion.div>
+                ))
+              ) : achievementsError ? (
+                // Error state
+                <div className="text-center py-12">
+                  <p className="text-white/70">{achievementsError}</p>
+                  <button 
+                    className="mt-4 px-6 py-2 bg-accent/10 border border-accent/30 text-accent rounded-lg hover:bg-accent/20"
+                    onClick={() => window.location.reload()}
+                  >
+                    Retry
+                  </button>
+                </div>
+              ) : (
+                // Data loaded successfully
+                achievements.slice(0, 3).map((achievement, index) => (
+                  <motion.div 
+                    key={achievement.id}
+                    className={`flex flex-col ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} items-center gap-8 md:gap-16`}
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={isAchievementsInView ? { opacity: 1, y: 0 } : {}}
+                    transition={{ delay: 0.2 + index * 0.2, duration: 0.7 }}
+                  >
+                    {/* Timeline Node */}
+                    <div className="hidden md:block absolute left-[50%] w-6 h-6 -ml-3 rounded-full border-2 border-accent bg-[#081630] z-10" />
+                    
+                    {/* Image Side */}
+                    <div className="w-full md:w-[45%]">
+                      <TiltCard className="overflow-hidden rounded-xl border border-white/10 shadow-xl">
+                        <div className="relative h-60 w-full overflow-hidden">
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#081630] to-transparent opacity-60 z-10" />
+                          <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            transition={{ duration: 0.6 }}
+                            className="w-full h-full"
                           >
-                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                          </motion.span>
-                        </Link>
+                            <Image 
+                              src={
+                                achievement.image_url 
+                                  ? `${(process.env.NEXT_PUBLIC_IMG_URL || '').replace(/\/+$/, '')}/${achievement.image_url.replace(/^\/+/, '')}`
+                                  : "https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?q=80&w=1920&auto=format&fit=crop"
+                              } 
+                              alt={achievement.name}
+                              fill
+                              className="object-cover"
+                              priority={index === 0}  // Prioritize loading the first image
+                              sizes="(max-width: 768px) 100vw, 45vw"  // Help browser optimize loading
+                            />
+                          </motion.div>
+                          <div className="absolute top-4 left-4 z-20">
+                            <span className="px-4 py-1 bg-accent text-primary text-sm font-medium rounded-full">
+                              {formatDate(achievement.date)}
+                            </span>
+                          </div>
+                        </div>
+                      </TiltCard>
+                    </div>
+                    
+                    {/* Content Side */}
+                    <div className="w-full md:w-[45%] text-center md:text-left">
+                      <motion.div 
+                        className="p-6 md:p-0 md:px-4"
+                        whileHover={{ x: index % 2 === 0 ? 10 : -10 }}
+                        transition={{ type: "spring", stiffness: 300 }}
+                      >
+                        <h3 className="text-2xl font-bold text-white mb-4">{achievement.name}</h3>
+                        <p className="text-white/70 leading-relaxed">{achievement.description}</p>
+                        
+                        <motion.div 
+                          className="mt-6 inline-block"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <Link 
+                            href={achievement.link || "/about"} 
+                            className="text-accent font-medium flex items-center gap-2 group"
+                          >
+                            Read More 
+                            <motion.span
+                              animate={{ x: [0, 5, 0] }}
+                              transition={{ 
+                                duration: 1.5, 
+                                repeat: Infinity, 
+                                repeatDelay: 1 
+                              }}
+                            >
+                              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            </motion.span>
+                          </Link>
+                        </motion.div>
                       </motion.div>
-                    </motion.div>
-                  </div>
-                </motion.div>
-              ))}
+                    </div>
+                  </motion.div>
+                ))
+              )}
             </div>
           </div>
           

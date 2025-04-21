@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['images.unsplash.com'],
+    domains: ['localhost', 'images.unsplash.com', 'your-production-domain.com',],
   },
   // Can be safely removed in newer versions of Next.js
   webpack(config) {
