@@ -28,7 +28,7 @@ export default function UpcomingEvents() {
   useEffect(() => {
     const fetchEvents = async () => {
       const data = await fetchUpcomingEventsAction();
-      console.log('upcoming data : ', data);
+
       if (data) {
         setEvents(data);
         setIsLoading(false); // Set loading to false once events are fetched

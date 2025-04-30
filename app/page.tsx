@@ -100,7 +100,7 @@ export default function Page() {
       try {
         setIsLoadingAchievements(true);
         const data = await fetchAchievements();
-        console.log("Achievements data (home):", data);
+
         setAchievements(data);
       } catch (error) {
         console.error('Error fetching achievements:', error);
@@ -119,7 +119,7 @@ export default function Page() {
       try {
         setIsLoadingEvents(true);
         const data = await fetchTopEvents(3);
-        console.log("Events data:", data);
+
         setEvents(data);
       } catch (error) {
         console.error('Error fetching events:', error);
@@ -138,7 +138,7 @@ export default function Page() {
       try {
         setIsLoadingStats(true);
         const data = await fetchStats();
-        console.log("Stats data:", data);
+
         setStatsData(data);
       } catch (error) {
         console.error('Error fetching stats:', error);

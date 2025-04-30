@@ -27,11 +27,9 @@ export async function fetchUpcomingEvents() {
       date: formatDateToLocal(event.date),
     }));
 
-    console.log('fetch upcoming events : ', upcomingEvents);
-
     return upcomingEvents;
   } catch (error) {
-    console.log('error : ', error);
+
     console.error('Database Error:', error);
     throw new Error('Failed to fetch the upcoming events.');
   }
@@ -55,12 +53,12 @@ export async function fetchChart() {
       };
     });
 
-    console.log('chartData : ', chartData);
 
+    
     const eventCount = countEventsByMonth(chartData);
 
-    console.log('event count : ', eventCount);
 
+    
     return eventCount;
   } catch (error) {
     console.error('Database Error:', error);
@@ -91,8 +89,8 @@ export async function fetchCardData() {
     const totalHostedEvents = data[2].rows[0].count ?? '0';
     const totalPendingEvents = data[3].rows[0].count ?? '0';
 
-    console.log('Card Data:', data[3].rows[0]);
 
+    
     return {
       numberOfMembers,
       numberOfEvents,
@@ -226,7 +224,7 @@ export async function fetchInvoicesPages(query: string) {
 
 export async function fetchMemberById(id: string) {
   noStore();
-  console.log('Fetching Member by id:', id);
+
   try {
     const data = await sql<Member>`
       SELECT
@@ -253,7 +251,7 @@ export async function fetchMemberById(id: string) {
 
 export async function fetchEventById(id: string) {
   noStore();
-  console.log('Fetching event by id:', id);
+
   try {
     const data = await sql<EventForm>`
       SELECT

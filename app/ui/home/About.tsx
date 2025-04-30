@@ -55,7 +55,7 @@ export default function AboutPage() {
       try {
         setIsLoadingTimeline(true);
         const data = await fetchTimeline();
-        console.log('Timeline data:', data);
+
         setTimelineData(data);
       } catch (error) {
         console.error('Error fetching timeline:', error);
@@ -74,7 +74,7 @@ export default function AboutPage() {
       try {
         setIsLoadingAchievements(true);
         const data = await fetchTopAchievements(3);
-        console.log('Achievements data:', data);
+
         setAchievementsData(data);
       } catch (error) {
         console.error('Error fetching achievements:', error);
@@ -655,8 +655,8 @@ function TimelineItem({ year, title, description, imageSrc, isLeft, delay }: {
     }
   }, [imageSrc]);
 
-  console.log('Timeline image source:', { original: imageSrc, processed: processedImageSrc });
 
+  
   return (
     <motion.div 
       initial="hidden"

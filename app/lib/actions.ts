@@ -104,11 +104,11 @@ export async function fetchUpcomingEventsAction() {
       date: formatDateToLocal(event.date),
     }));
 
-    console.log('fetch upcoming events : ', upcomingEvents);
 
+    
     return upcomingEvents;
   } catch (error) {
-    console.log('error : ', error);
+
     console.error('Database Error:', error);
     throw new Error('Failed to fetch the upcoming events.');
   }
@@ -140,7 +140,7 @@ export async function filterMembersOnYear(year: string) {
     `;
     
     // Log the count of members found
-    console.log(`Found ${members.rows.length} members for year ${year}`);
+
     
     return members.rows;
   } catch (error) {
@@ -152,7 +152,8 @@ export async function filterMembersOnYear(year: string) {
     if (process.env.NODE_ENV === 'production') {
       return []; // Return empty array in production to prevent crashes
     } else {
-      throw new Error(`Failed to fetch members for year ${year}: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to fetch members for year ${year}: ${errorMessage}`);
     }
   }
 }
@@ -241,7 +242,7 @@ export async function fetchTopAchievements(limit: number = 3): Promise<Achieveme
       LIMIT ${limit}
     `;
     
-    console.log('Achievements fetched from database:', data.rows);
+
     return data.rows;
   } catch (error) {
     console.error('Database Error:', error);
@@ -261,7 +262,7 @@ export async function fetchAllAchievements(): Promise<Achievement[]> {
       ORDER BY date DESC
     `;
     
-    console.log(`Fetched ${data.rows.length} achievements`);
+
     return data.rows;
   } catch (error) {
     console.error('Database Error:', error);
