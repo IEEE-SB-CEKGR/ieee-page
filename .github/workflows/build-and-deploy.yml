@@ -13,7 +13,7 @@ env:
   # Add manifest repository information
   MANIFEST_REPO: "IEEE-SB-CE-KGR/ieee-manifests"
   MANIFEST_BRANCH: "master"
-  MANIFEST_PATH: "environments/production"
+  MANIFEST_PATH: "ieee-manifests"
 
 jobs:
   build-and-push:
