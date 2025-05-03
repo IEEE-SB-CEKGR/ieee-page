@@ -83,12 +83,12 @@ jobs:
           cd manifests/${{ env.MANIFEST_PATH }}
           
           # Update the image in the deployment file
-          if [ -f "deployment.yaml" ]; then
+          if [ -f "deployment.yml" ]; then
             # Use sed to replace the image line while preserving indentation
             sed -i -E "s|image: .*aka717/ieee-page:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.sha.outputs.short }}|g" deployment.yaml
-            echo "Updated deployment.yaml with new image tag"
+            echo "Updated deployment.yml with new image tag"
           else
-            echo "Warning: deployment.yaml not found in the manifest repository"
+            echo "Warning: deployment.yml not found in the manifest repository"
           fi
           
           # Commit and push the changes
