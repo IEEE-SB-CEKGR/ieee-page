@@ -116,6 +116,12 @@ export async function fetchUpcomingEventsAction() {
 
 export async function filterMembersOnYear(year: string) {
   try {
+    // Add validation for the year parameter
+    if (!year || year.trim() === '') {
+      console.warn('Invalid year parameter provided:', year);
+      return []; // Return empty array instead of throwing
+    }
+
     const members = await sql<Member>`
       SELECT
         id,
@@ -132,10 +138,22 @@ export async function filterMembersOnYear(year: string) {
       WHERE year = ${year}
       ORDER BY name
     `;
+    
+    // Log the count of members found
+    console.log(`Found ${members.rows.length} members for year ${year}`);
+    
     return members.rows;
   } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch members.');
+    // More detailed error logging
+    console.error('Database Error when filtering members by year:', error);
+    console.error('Year parameter was:', year);
+    
+    // Handle the error gracefully in production
+    if (process.env.NODE_ENV === 'production') {
+      return []; // Return empty array in production to prevent crashes
+    } else {
+      throw new Error(`Failed to fetch members for year ${year}: ${error.message}`);
+    }
   }
 }
 

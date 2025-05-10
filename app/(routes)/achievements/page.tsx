@@ -134,7 +134,7 @@ export default function AchievementsPage() {
             className="max-w-3xl mx-auto text-center"
           >
             <p className="text-lg text-white/80">
-              Explore our journey through the years. Each achievement represents a milestone in our chapter's history.
+              Explore our journey through the years. Each achievement represents a milestone in our chapter&apos;s history.
             </p>
           </motion.div>
         </div>
