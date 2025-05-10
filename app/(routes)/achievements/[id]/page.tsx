@@ -70,8 +70,8 @@ export default function AchievementDetailPage() {
     }
   }, [achievement]);
 
-  console.log("processImageUrl", processImageUrl);
 
+  
   useEffect(() => {
     const loadAchievement = async () => {
       try {
@@ -179,7 +179,7 @@ export default function AchievementDetailPage() {
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     if (!target.src.includes('default-achievement')) {
-                      console.log('Image failed to load, using fallback');
+
                       target.src = '/images/placeholders/default-achievement.jpg';
                     }
                   }}

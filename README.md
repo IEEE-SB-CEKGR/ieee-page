@@ -31,6 +31,32 @@ Copy the PostgreSQL credentials from Step 2 into the `.env` file like so:
 ```
 DATABASE_URL=<your-postgresql-url>
 ```
+```
+# Recommended for most uses
+DATABASE_URL=
+
+# For uses requiring a connection without pgbouncer
+DATABASE_URL_UNPOOLED=
+
+# Parameters for constructing your own connection string
+PGHOST=
+PGHOST_UNPOOLED=
+PGUSER=
+PGDATABASE=
+PGPASSWORD=
+
+# Parameters for Vercel Postgres Templates
+POSTGRES_URL=
+POSTGRES_URL_NON_POOLING=
+POSTGRES_USER=default
+POSTGRES_HOST=
+POSTGRES_PASSWORD=
+POSTGRES_DATABASE=
+POSTGRES_URL_NO_SSL=
+POSTGRES_PRISMA_URL=
+AUTH_SECRET=
+NEXT_PUBLIC_IMG_URL=
+```
 
 ### 6️⃣ Set Up NEXTAUTH Secret 🔑
 
