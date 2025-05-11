@@ -47,18 +47,29 @@ jobs:
           
           # Show current image before change
           echo "Current image setting:"
-          grep -n "image: aka717/ieee-page" deployment.yml || echo "No matching image line found!"
+          grep -n "image:" deployment.yml
           
-          # Update the image using a more robust pattern
-          sed -i 's|image: aka717/ieee-page:.*|image: aka717/ieee-page:${{ github.sha }}|' deployment.yml
+          # Update the image using a pattern that matches the actual image format
+          sed -i 's|image: ghcr.io/.*/ieee-page:.*|image: aka717/ieee-page:${{ github.sha }}|' deployment.yml
           
           # Verify the change was successful
           if grep -q "image: aka717/ieee-page:${{ github.sha }}" deployment.yml; then
             echo "✅ Successfully updated image tag to: ${{ github.sha }}"
+            echo "New image line:"
+            grep -n "image:" deployment.yml
           else
-            echo "❌ Image tag update failed. Current content:"
-            cat deployment.yml
-            exit 1
+            echo "❌ First pattern failed, trying alternative pattern..."
+            # Try a more generic pattern
+            sed -i 's|image:.*ieee-page:.*|image: aka717/ieee-page:${{ github.sha }}|' deployment.yml
+            
+            # Check again
+            if grep -q "image: aka717/ieee-page:${{ github.sha }}" deployment.yml; then
+              echo "✅ Successfully updated image with alternative pattern"
+            else
+              echo "❌ Image tag update failed. Current content:"
+              cat deployment.yml
+              exit 1
+            fi
           fi
           
           # Configure Git and push changes
