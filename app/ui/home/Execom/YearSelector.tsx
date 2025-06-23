@@ -5,12 +5,12 @@ import { motion } from 'framer-motion';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { sql } from '@vercel/postgres';
 
-const years_sql_query = await sql<{ year: number }>`
-  SELECT DISTINCT year FROM members
-  ORDER BY year
-`;
+async function loadYears() {
+  const result = await sql<{ year: number }>`SELECT DISTINCT year FROM members ORDER BY year`;
+  return result.rows.map(row => row.year);
+}
 
-const years = years_sql_query.rows.map(row => row.year);
+const years = await loadYears(); 
 
 export default function YearSelector({ currentYear }: { currentYear: string }) {
   const router = useRouter();
