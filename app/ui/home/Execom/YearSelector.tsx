@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 
-const years = ['2020', '2021', '2022', '2023', '2024'];
+const years = ['2020', '2021', '2022', '2023', '2024','2025'];
 
 export default function YearSelector({ currentYear }: { currentYear: string }) {
   const router = useRouter();
