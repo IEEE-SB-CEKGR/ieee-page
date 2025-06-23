@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
+import { sql } from '@vercel/postgres';
 
 const years_sql_query = await sql<{ year: number }>`
   SELECT DISTINCT year FROM members
