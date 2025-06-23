@@ -10,7 +10,7 @@ const years_sql_query = await sql<{ year: number }>`
   ORDER BY year
 `;
 
-const years = years.rows.map(row => row.year);
+const years = years_sql_query.rows.map(row => row.year);
 
 export default function YearSelector({ currentYear }: { currentYear: string }) {
   const router = useRouter();
