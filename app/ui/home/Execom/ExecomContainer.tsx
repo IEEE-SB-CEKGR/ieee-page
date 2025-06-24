@@ -10,9 +10,11 @@ import { FadeIn } from '@/app/ui/animations/FadeIn';
 export default function ExecomContainer({
   members,
   year,
+  years,
 }: {
   members: any[];
   year: string;
+  years: string[];
 }) {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -22,7 +24,7 @@ export default function ExecomContainer({
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1200);
-    
+
     return () => clearTimeout(timer);
   }, [year]); // Reset loading state when year changes
 
@@ -37,9 +39,9 @@ export default function ExecomContainer({
         <FadeIn delay={0.2}>
           <ExecomHeader year={year} />
         </FadeIn>
-        
+
         <FadeIn delay={0.4}>
-          <YearSelector currentYear={year} />
+          <YearSelector currentYear={year} years={years} />
         </FadeIn>
 
         <motion.div
