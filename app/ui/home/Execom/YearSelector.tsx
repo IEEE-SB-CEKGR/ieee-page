@@ -3,16 +3,14 @@
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
-import { sql } from '@vercel/postgres';
 
-async function loadYears() {
-  const result = await sql<{ year: number }>`SELECT DISTINCT year FROM members ORDER BY year`;
-  return result.rows.map(row => row.year);
-}
-
-const years = await loadYears(); 
-
-export default function YearSelector({ currentYear }: { currentYear: string }) {
+export default function YearSelector({
+  currentYear,
+  years,
+}: {
+  currentYear: string;
+  years: string[];
+}) {
   const router = useRouter();
   const currentIndex = years.indexOf(currentYear);
   const hasPrevious = currentIndex > 0;
@@ -27,7 +25,7 @@ export default function YearSelector({ currentYear }: { currentYear: string }) {
       className="flex items-center justify-center space-x-1 sm:space-x-2 mx-auto mb-12 max-w-sm bg-white/5 backdrop-blur-sm rounded-full px-2 py-1.5 border border-white/10 shadow-lg"
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
     >
       <motion.button
         onClick={() => hasPrevious && handleYearChange(years[currentIndex - 1])}
@@ -48,7 +46,7 @@ export default function YearSelector({ currentYear }: { currentYear: string }) {
           <motion.button
             key={year}
             onClick={() => handleYearChange(year)}
-            className={`relative px-2.5 py-1.5 text-xs sm:text-sm font-medium rounded-full mx-0.5`}
+            className="relative px-2.5 py-1.5 text-xs sm:text-sm font-medium rounded-full mx-0.5"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             animate={{ opacity: year === currentYear ? 1 : 0.6 }}
@@ -62,7 +60,11 @@ export default function YearSelector({ currentYear }: { currentYear: string }) {
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               />
             )}
-            <span className={`relative z-10 ${year === currentYear ? 'text-white font-bold' : 'text-gray-300'}`}>
+            <span
+              className={`relative z-10 ${
+                year === currentYear ? 'text-white font-bold' : 'text-gray-300'
+              }`}
+            >
               {year}
             </span>
           </motion.button>
