@@ -64,18 +64,23 @@ const YearSelector = ({ currentYear, years }: YearSelectorProps) => {
       handleYearChange(nextYear);
     }
   };
+  
+    // Dynamic width based on number of years - scales progressively
+  const getDynamicWidth = () => {
+    const baseWidth = 10;
+    const increment = 2.5;
+    const maxWidth = 24;
+
+    const calculatedWidth = baseWidth + (years.length - 1) * increment;
+    return Math.min(calculatedWidth, maxWidth);
+  };
 
   return (
    <motion.div
       className="mx-auto mb-12 flex items-center justify-center space-x-1 rounded-full border border-white/10 bg-white/5 px-2 py-1.5 shadow-lg backdrop-blur-sm sm:space-x-2"
       style={{
-        minWidth:
-          years.length === 1
-            ? '12rem'
-            : years.length <= 3
-              ? '15rem'
-              : 'fit-content',
-        maxWidth: '24rem',
+        width: `${getDynamicWidth()}rem`,
+        minWidth: '10rem', // ensure minimum width
       }}
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
