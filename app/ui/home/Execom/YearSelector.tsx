@@ -66,8 +66,17 @@ const YearSelector = ({ currentYear, years }: YearSelectorProps) => {
   };
 
   return (
-    <motion.div
-      className="mx-auto mb-12 flex max-w-sm items-center justify-center space-x-1 rounded-full border border-white/10 bg-white/5 px-2 py-1.5 shadow-lg backdrop-blur-sm sm:space-x-2"
+   <motion.div
+      className="mx-auto mb-12 flex items-center justify-center space-x-1 rounded-full border border-white/10 bg-white/5 px-2 py-1.5 shadow-lg backdrop-blur-sm sm:space-x-2"
+      style={{
+        minWidth:
+          years.length === 1
+            ? '12rem'
+            : years.length <= 3
+              ? '15rem'
+              : 'fit-content',
+        maxWidth: '24rem',
+      }}
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
