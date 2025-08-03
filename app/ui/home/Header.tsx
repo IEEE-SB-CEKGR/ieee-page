@@ -329,7 +329,7 @@ export default function Header() {
 
               <div className="mt-auto">
                 <div className="pb-4 pt-8">
-                  <Link href="/join">
+                  <Link href="https://www.ieee.org/membership/join">
                     <motion.button
                       className="flex w-full items-center justify-center gap-2 rounded-md bg-accent px-4 py-3 text-base font-medium text-white transition-all hover:bg-accent/90"
                       whileHover={{ gap: '10px' }}

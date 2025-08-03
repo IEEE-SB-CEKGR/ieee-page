@@ -127,14 +127,11 @@ export default function Footer() {
                   sb.cek@ieee.org
                 </a>
               </p>
-              <p className="text-white/60">
-                <a
-                  href="tel:+9149912345678"
-                  className="transition-colors duration-300 hover:text-accent"
-                >
+              {/*<p className="text-white/60">
+                <a href="tel:+9149912345678" className="hover:text-accent transition-colors duration-300">
                   +91 499 1234 5678
                 </a>
-              </p>
+              </p> */}
             </address>
           </motion.div>
         </motion.div>
