@@ -15,6 +15,29 @@ const societyHeadings = {
   other: 'Members', // A fallback for any other society value
 };
 
+// Mapping function to handle different database values
+const mapSocietyToKey = (society: string): keyof typeof societyHeadings => {
+  if (!society) return 'other';
+
+  const normalizedSociety = society.toLowerCase().trim();
+
+  // Map various possible database values to our keys
+  const mappings: Record<string, keyof typeof societyHeadings> = {
+    bearer: 'bearer',
+    'main committee': 'bearer',
+    main: 'bearer',
+    cs: 'cs',
+    'computer society': 'cs',
+    computer: 'cs',
+    ias: 'ias',
+    ras: 'ras',
+    wie: 'wie',
+    'women in engineering': 'wie',
+  };
+
+  return mappings[normalizedSociety] || 'other';
+};
+
 const displayOrder: (keyof typeof societyHeadings)[] = [
   'bearer',
   'cs',
@@ -56,11 +79,23 @@ export default function ExecomGrid({
     // Distribute sorted members into the appropriate groups
     return sortedMembers.reduce((acc, member) => {
       const society = member.society;
-      if (society && acc[society]) {
-        acc[society].push(member);
-      } else {
-        acc.other.push(member);
-      }
+
+      // Debug: Log the society value to see what's coming from the database
+      console.log('Member society:', society, 'Member name:', member.name);
+
+      // Map the society value to our expected key
+      const mappedSociety = mapSocietyToKey(society);
+
+      // Add member to the appropriate group
+      acc[mappedSociety].push(member);
+
+      console.log(
+        'Member added to category:',
+        mappedSociety,
+        'Member name:',
+        member.name,
+      );
+
       return acc;
     }, initialGroups);
   }, [members]);
