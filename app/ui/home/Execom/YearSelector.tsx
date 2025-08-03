@@ -1,81 +1,160 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 
-const years = ['2020', '2021', '2022', '2023', '2024'];
+interface YearSelectorProps {
+  currentYear: number | string;
+  years: (number | string)[];
+}
 
-export default function YearSelector({ currentYear }: { currentYear: string }) {
+const YearSelector = ({ currentYear, years }: YearSelectorProps) => {
   const router = useRouter();
-  const currentIndex = years.indexOf(currentYear);
-  const hasPrevious = currentIndex > 0;
-  const hasNext = currentIndex < years.length - 1;
+  const [windowStart, setWindowStart] = useState(0);
+  const windowSize = 5;
 
-  const handleYearChange = (year: string) => {
+  const currentYearIndex = years.indexOf(currentYear);
+
+  useEffect(() => {
+    if (currentYearIndex === -1) return;
+
+    let newWindowStart = windowStart;
+
+    if (currentYearIndex < windowStart) {
+      newWindowStart = currentYearIndex;
+    } else if (currentYearIndex >= windowStart + windowSize) {
+      newWindowStart = currentYearIndex - windowSize + 1;
+      if (newWindowStart < 0) {
+        newWindowStart = 0;
+      }
+    }
+
+    const maxWindowStart = years.length - windowSize;
+    if (maxWindowStart < 0) {
+      newWindowStart = 0;
+    } else if (newWindowStart > maxWindowStart) {
+      newWindowStart = maxWindowStart;
+    }
+
+    if (newWindowStart !== windowStart) {
+      setWindowStart(newWindowStart);
+    }
+  }, [currentYear, currentYearIndex, windowStart, years.length]);
+
+  const visibleYears = years.slice(windowStart, windowStart + windowSize);
+  const canNavigateLeft = currentYearIndex > 0;
+  const canNavigateRight = currentYearIndex < years.length - 1;
+
+  const handleYearChange = (year: string | number) => {
     router.push(`/execom/${year}`);
+  };
+
+  const handleNavigateLeft = () => {
+    if (canNavigateLeft) {
+      const prevYear = years[currentYearIndex - 1];
+      handleYearChange(prevYear);
+    }
+  };
+
+  const handleNavigateRight = () => {
+    if (canNavigateRight) {
+      const nextYear = years[currentYearIndex + 1];
+      handleYearChange(nextYear);
+    }
+  };
+
+  // Dynamic width based on number of years - scales progressively
+  const getDynamicWidth = () => {
+    const baseWidth = 10;
+    const increment = 2.5;
+    const maxWidth = 24;
+
+    const calculatedWidth = baseWidth + (years.length - 1) * increment;
+    return Math.min(calculatedWidth, maxWidth);
   };
 
   return (
     <motion.div
-      className="flex items-center justify-center space-x-1 sm:space-x-2 mx-auto mb-12 max-w-sm bg-white/5 backdrop-blur-sm rounded-full px-2 py-1.5 border border-white/10 shadow-lg"
+      className="mx-auto mb-12 flex items-center justify-center space-x-1 rounded-full border border-white/10 bg-white/5 px-2 py-1.5 shadow-lg backdrop-blur-sm sm:space-x-2"
+      style={{
+        width: `${getDynamicWidth()}rem`,
+        minWidth: '10rem', // ensure minimum width
+      }}
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
     >
       <motion.button
-        onClick={() => hasPrevious && handleYearChange(years[currentIndex - 1])}
+        onClick={handleNavigateLeft}
         className={`flex-shrink-0 rounded-full p-1.5 ${
-          hasPrevious
+          canNavigateLeft
             ? 'text-blue-500 hover:bg-blue-500/10 hover:text-blue-400'
-            : 'text-gray-500 opacity-30 cursor-not-allowed'
+            : 'cursor-not-allowed text-gray-500 opacity-30'
         }`}
-        disabled={!hasPrevious}
-        whileHover={hasPrevious ? { scale: 1.1 } : {}}
-        whileTap={hasPrevious ? { scale: 0.95 } : {}}
+        disabled={!canNavigateLeft}
+        whileHover={canNavigateLeft ? { scale: 1.1 } : undefined}
+        whileTap={canNavigateLeft ? { scale: 0.95 } : undefined}
       >
         <HiChevronLeft size={18} />
       </motion.button>
 
-      <div className="flex justify-center flex-1">
-        {years.map((year) => (
-          <motion.button
-            key={year}
-            onClick={() => handleYearChange(year)}
-            className={`relative px-2.5 py-1.5 text-xs sm:text-sm font-medium rounded-full mx-0.5`}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            animate={{ opacity: year === currentYear ? 1 : 0.6 }}
-            transition={{ duration: 0.2 }}
-          >
-            {year === currentYear && (
-              <motion.div
-                layoutId="activeYearPill"
-                className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full"
-                initial={false}
-                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-              />
-            )}
-            <span className={`relative z-10 ${year === currentYear ? 'text-white font-bold' : 'text-gray-300'}`}>
-              {year}
-            </span>
-          </motion.button>
-        ))}
+      <div className="flex flex-1 justify-center overflow-hidden">
+        <motion.div
+          className="flex"
+          animate={{ x: 0 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        >
+          {visibleYears.map((year) => {
+            const isCurrentYear = year === currentYear;
+
+            return (
+              <motion.button
+                key={year}
+                onClick={() => handleYearChange(year)}
+                className="relative mx-0.5 flex-shrink-0 rounded-full px-2.5 py-1.5 text-xs font-medium sm:text-sm"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                animate={{ opacity: isCurrentYear ? 1 : 0.6 }}
+                transition={{ duration: 0.2 }}
+              >
+                {isCurrentYear && (
+                  <motion.div
+                    layoutId="activeYearPill"
+                    className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500"
+                    initial={false}
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                )}
+                <span
+                  className={`relative z-10 ${
+                    isCurrentYear ? 'font-bold text-white' : 'text-gray-300'
+                  }`}
+                >
+                  {year}
+                </span>
+              </motion.button>
+            );
+          })}
+        </motion.div>
       </div>
 
       <motion.button
-        onClick={() => hasNext && handleYearChange(years[currentIndex + 1])}
+        onClick={handleNavigateRight}
         className={`flex-shrink-0 rounded-full p-1.5 ${
-          hasNext
+          canNavigateRight
             ? 'text-blue-500 hover:bg-blue-500/10 hover:text-blue-400'
-            : 'text-gray-500 opacity-30 cursor-not-allowed'
+            : 'cursor-not-allowed text-gray-500 opacity-30'
         }`}
-        disabled={!hasNext}
-        whileHover={hasNext ? { scale: 1.1 } : {}}
-        whileTap={hasNext ? { scale: 0.95 } : {}}
+        disabled={!canNavigateRight}
+        whileHover={canNavigateRight ? { scale: 1.1 } : undefined}
+        whileTap={canNavigateRight ? { scale: 0.95 } : undefined}
       >
         <HiChevronRight size={18} />
       </motion.button>
     </motion.div>
   );
-}
+};
+
+export default YearSelector;

@@ -2,9 +2,9 @@ import Link from 'next/link';
 import { FaTwitter, FaInstagram, FaFacebook } from 'react-icons/fa';
 
 const socials = [
-  { icon: <FaFacebook />, path: '' },
-  { icon: <FaInstagram />, path: '' },
-  { icon: <FaTwitter />, path: '' },
+  { icon: <FaFacebook />, path: 'https://www.facebook.com/ieeecekgr/' },
+  { icon: <FaInstagram />, path: 'https://www.instagram.com/ieeesbcekgr/' },
+  { icon: <FaTwitter />, path: 'https://www.twitter.com/' },
 ];
 
 const Social = ({

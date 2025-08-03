@@ -1,55 +1,123 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import MemberCard from '../MemberCard/index';
 import { MemberCardSkeleton } from '@/app/ui/skeletons';
 import { StaggerContainer } from '@/app/ui/animations/StaggerContainer';
 
-export default function ExecomGrid({ 
-  members, 
-  isLoading 
-}: { 
+const societyHeadings = {
+  bearer: 'Main Committee',
+  cs: 'Computer Society',
+  ias: 'IAS',
+  ras: 'RAS',
+  wie: 'WIE',
+  other: 'Members', // A fallback for any other society value
+};
+
+const displayOrder: (keyof typeof societyHeadings)[] = [
+  'bearer',
+  'cs',
+  'ias',
+  'ras',
+  'wie',
+  'other',
+];
+
+export default function ExecomGrid({
+  members,
+  isLoading,
+}: {
   members: any[];
   isLoading: boolean;
 }) {
+  // Group members by society while preserving the insertion order
+  const groupedAndSortedMembers = useMemo(() => {
+    // First, sort all members by creation timestamp (oldest first)
+    const sortedMembers = [...members].sort((a, b) => {
+      if (a.created_at && b.created_at) {
+        return (
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        );
+      }
+      return 0; // Fallback to maintain original order
+    });
+
+    // Initialize an object to hold the groups
+    const initialGroups: Record<string, any[]> = {
+      bearer: [],
+      cs: [],
+      ias: [],
+      ras: [],
+      wie: [],
+      other: [],
+    };
+
+    // Distribute sorted members into the appropriate groups
+    return sortedMembers.reduce((acc, member) => {
+      const society = member.society;
+      if (society && acc[society]) {
+        acc[society].push(member);
+      } else {
+        acc.other.push(member);
+      }
+      return acc;
+    }, initialGroups);
+  }, [members]);
+
+  // Helper function to render a grid of members for a society
+  const renderMemberGrid = (memberList: any[]) => (
+    <StaggerContainer
+      className="grid grid-cols-1 justify-items-center gap-8 md:grid-cols-2 lg:grid-cols-3"
+      delayChildren={0.2}
+      staggerChildren={0.15}
+    >
+      {memberList.map((member, index) => (
+        <motion.div
+          key={member.id || index}
+          className="flex w-full justify-center"
+          variants={{
+            hidden: { opacity: 0, y: 50 },
+            visible: {
+              opacity: 1,
+              y: 0,
+              transition: { type: 'spring', stiffness: 100, damping: 12 },
+            },
+          }}
+        >
+          <Suspense fallback={<MemberCardSkeleton />}>
+            <MemberCard member={member} />
+          </Suspense>
+        </motion.div>
+      ))}
+    </StaggerContainer>
+  );
+
   return (
-    <div className="w-full max-w-7xl mx-auto px-4">
+    <div className="mx-auto w-full max-w-7xl px-4">
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
-          {Array.from({ length: 6 }).map((_, i) => (
+        <div className="grid grid-cols-1 justify-items-center gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 9 }).map((_, i) => (
             <MemberCardSkeleton key={i} />
           ))}
         </div>
       ) : (
-        <StaggerContainer 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center"
-          delayChildren={0.2}
-          staggerChildren={0.15}
-        >
-          {members.map((member, index) => (
-            <motion.div 
-              key={index}
-              className="w-full flex justify-center"
-              variants={{
-                hidden: { opacity: 0, y: 50 },
-                visible: { 
-                  opacity: 1, 
-                  y: 0,
-                  transition: { 
-                    type: "spring",
-                    stiffness: 100,
-                    damping: 12
-                  }
-                }
-              }}
-            >
-              <Suspense fallback={<MemberCardSkeleton />}>
-                <MemberCard member={member} />
-              </Suspense>
-            </motion.div>
-          ))}
-        </StaggerContainer>
+        <div className="space-y-16">
+          {displayOrder.map((societyKey) => {
+            const memberList = groupedAndSortedMembers[societyKey];
+            if (memberList && memberList.length > 0) {
+              return (
+                <section key={societyKey}>
+                  <h2 className="mb-8 text-center text-3xl font-bold">
+                    {societyHeadings[societyKey]}
+                  </h2>
+                  {renderMemberGrid(memberList)}
+                </section>
+              );
+            }
+            return null;
+          })}
+        </div>
       )}
     </div>
   );
