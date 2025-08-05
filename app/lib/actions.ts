@@ -70,18 +70,19 @@ export async function fetchStats(): Promise<Stats> {
     // Using SQL to fetch actual counts from your database tables
     const membersCount = await sql`SELECT COUNT(*) as count FROM members`;
     const eventsCount = await sql`SELECT COUNT(*) as count FROM events`;
-    const awardsCount = await sql`SELECT COUNT(*) as count FROM achievements WHERE type = 'award'`;
-    
+    const awardsCount =
+      await sql`SELECT COUNT(*) as count FROM achievements WHERE type = 'award'`;
+
     // You can either hardcode the founding year or store it in a settings table
     const yearsResult = await sql`
       SELECT EXTRACT(YEAR FROM CURRENT_DATE) - 2010 as years_active
     `;
-    
+
     return {
       members: membersCount.rows[0].count,
       events: eventsCount.rows[0].count,
       awards: awardsCount.rows[0].count,
-      years: yearsResult.rows[0].years_active
+      years: yearsResult.rows[0].years_active,
     };
   } catch (error) {
     console.error('Database Error:', error);
@@ -104,11 +105,8 @@ export async function fetchUpcomingEventsAction() {
       date: formatDateToLocal(event.date),
     }));
 
-
-    
     return upcomingEvents;
   } catch (error) {
-
     console.error('Database Error:', error);
     throw new Error('Failed to fetch the upcoming events.');
   }
@@ -128,6 +126,7 @@ export async function filterMembersOnYear(year: string) {
         name,
         type,
         role,
+        society,
         image_url,
         year,
         linkedin,
@@ -138,22 +137,24 @@ export async function filterMembersOnYear(year: string) {
       WHERE year = ${year}
       ORDER BY name
     `;
-    
+
     // Log the count of members found
 
-    
     return members.rows;
   } catch (error) {
     // More detailed error logging
     console.error('Database Error when filtering members by year:', error);
     console.error('Year parameter was:', year);
-    
+
     // Handle the error gracefully in production
     if (process.env.NODE_ENV === 'production') {
       return []; // Return empty array in production to prevent crashes
     } else {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      throw new Error(`Failed to fetch members for year ${year}: ${errorMessage}`);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      throw new Error(
+        `Failed to fetch members for year ${year}: ${errorMessage}`,
+      );
     }
   }
 }
@@ -166,7 +167,7 @@ export async function fetchAchievements(): Promise<Achievement[]> {
       FROM achievements
       ORDER BY date DESC
     `;
-    
+
     return data.rows;
   } catch (error) {
     console.error('Database Error:', error);
@@ -184,7 +185,7 @@ export async function fetchTopEvents(limit: number = 3): Promise<Event[]> {
       ORDER BY date ASC
       LIMIT ${limit}
     `;
-    
+
     return data.rows;
   } catch (error) {
     console.error('Database Error:', error);
@@ -213,17 +214,19 @@ export async function fetchTimeline(): Promise<Timeline[]> {
       ORDER BY 
         a.date DESC
     `;
-    
+
     // Explicitly add is_left property to alternate items
-    return data.rows.map((item, index): Timeline => ({
-      id: item.id,
-      year: item.year,
-      title: item.title,
-      description: item.description,
-      image_url: item.image_url,
-      achievement_id: item.achievement_id,
-      is_left: index % 2 === 0 // Even indexes are left, odd are right
-    }));
+    return data.rows.map(
+      (item, index): Timeline => ({
+        id: item.id,
+        year: item.year,
+        title: item.title,
+        description: item.description,
+        image_url: item.image_url,
+        achievement_id: item.achievement_id,
+        is_left: index % 2 === 0, // Even indexes are left, odd are right
+      }),
+    );
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch timeline data');
@@ -233,7 +236,9 @@ export async function fetchTimeline(): Promise<Timeline[]> {
 /**
  * Fetches top achievements from the database ordered by most recent date
  */
-export async function fetchTopAchievements(limit: number = 3): Promise<Achievement[]> {
+export async function fetchTopAchievements(
+  limit: number = 3,
+): Promise<Achievement[]> {
   try {
     const data = await sql<Achievement>`
       SELECT id, name, description, date, image_url, type
@@ -241,7 +246,6 @@ export async function fetchTopAchievements(limit: number = 3): Promise<Achieveme
       ORDER BY date DESC
       LIMIT ${limit}
     `;
-    
 
     return data.rows;
   } catch (error) {
@@ -261,7 +265,6 @@ export async function fetchAllAchievements(): Promise<Achievement[]> {
       FROM achievements
       ORDER BY date DESC
     `;
-    
 
     return data.rows;
   } catch (error) {
@@ -273,14 +276,16 @@ export async function fetchAllAchievements(): Promise<Achievement[]> {
 /**
  * Fetches a single achievement by ID
  */
-export async function fetchAchievementById(id: string): Promise<Achievement | null> {
+export async function fetchAchievementById(
+  id: string,
+): Promise<Achievement | null> {
   try {
     const data = await sql<Achievement>`
       SELECT id, name, description, date, image_url, type
       FROM achievements
       WHERE id = ${id}
     `;
-    
+
     return data.rows[0] || null;
   } catch (error) {
     console.error('Database Error:', error);
