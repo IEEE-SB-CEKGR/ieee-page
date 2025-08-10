@@ -54,53 +54,48 @@ export default function ExecomGrid({
   members: any[];
   isLoading: boolean;
 }) {
-  // Group members by society while preserving the insertion order
-  const groupedAndSortedMembers = useMemo(() => {
-    // First, sort all members by creation timestamp (oldest first)
-    const sortedMembers = [...members].sort((a, b) => {
-      if (a.created_at && b.created_at) {
-        return (
-          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-        );
-      }
-      return 0; // Fallback to maintain original order
-    });
+  // Custom order for positions
+  const positionOrder = [
+    'SB Chairperson',
+    'SB Vice Chairperson',
+    'SB Secretary',
+    'SB Joint Secretary',
+    'SB Treasurer',
+    'MDC',
+    'Technical Coordinator',
+    'Link Rep',
+    'Web Master',
+    'ECC',
+    'Operations Manager',
+    'IAS Chairperson',
+    'IAS Vice Chairperson',
+    'IAS Secretary',
+    'CS Chairperson',
+    'CS Vice Chairperson',
+    'CS Secretary',
+    'CS Women in Computing',
+    'WIE Chairperson',
+    'WIE Vice Chairperson',
+    'WIE Secretary',
+    'RAS Chairperson',
+    'RAS Vice Chairperson',
+    'RAS Secretary',
+  ];
 
-    // Initialize an object to hold the groups
-    const initialGroups: Record<string, any[]> = {
-      bearer: [],
-      cs: [],
-      ias: [],
-      ras: [],
-      wie: [],
-      other: [],
-    };
-
-    // Distribute sorted members into the appropriate groups
-    return sortedMembers.reduce((acc, member) => {
-      const society = member.society;
-
-      // Debug: Log the society value to see what's coming from the database
-      console.log('Member society:', society, 'Member name:', member.name);
-
-      // Map the society value to our expected key
-      const mappedSociety = mapSocietyToKey(society);
-
-      // Add member to the appropriate group
-      acc[mappedSociety].push(member);
-
-      console.log(
-        'Member added to category:',
-        mappedSociety,
-        'Member name:',
-        member.name,
-      );
-
-      return acc;
-    }, initialGroups);
+  // Filter and sort members to match the exact priority list (case-insensitive)
+  const sortedPriorityMembers = useMemo(() => {
+    return positionOrder
+      .map((position) =>
+        members.find(
+          (m) =>
+            typeof m.position === 'string' &&
+            m.position.trim().toLowerCase() === position.toLowerCase(),
+        ),
+      )
+      .filter(Boolean);
   }, [members]);
 
-  // Helper function to render a grid of members for a society
+  // Helper function to render a grid of members
   const renderMemberGrid = (memberList: any[]) => (
     <StaggerContainer
       className="grid grid-cols-1 justify-items-center gap-8 md:grid-cols-2 lg:grid-cols-3"
@@ -132,27 +127,17 @@ export default function ExecomGrid({
     <div className="mx-auto w-full max-w-7xl px-4">
       {isLoading ? (
         <div className="grid grid-cols-1 justify-items-center gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 9 }).map((_, i) => (
+          {Array.from({ length: positionOrder.length }).map((_, i) => (
             <MemberCardSkeleton key={i} />
           ))}
         </div>
       ) : (
-        <div className="space-y-16">
-          {displayOrder.map((societyKey) => {
-            const memberList = groupedAndSortedMembers[societyKey];
-            if (memberList && memberList.length > 0) {
-              return (
-                <section key={societyKey}>
-                  <h2 className="mb-8 text-center text-3xl font-bold">
-                    {societyHeadings[societyKey]}
-                  </h2>
-                  {renderMemberGrid(memberList)}
-                </section>
-              );
-            }
-            return null;
-          })}
-        </div>
+        <section>
+          <h2 className="mb-8 text-center text-3xl font-bold">
+            Execom Members
+          </h2>
+          {renderMemberGrid(sortedPriorityMembers)}
+        </section>
       )}
     </div>
   );
