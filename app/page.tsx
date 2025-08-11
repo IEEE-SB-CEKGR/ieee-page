@@ -943,16 +943,12 @@ export default function Page() {
                             className="h-full w-full"
                           >
                             <Image
-                              src={
-                                achievement.image_url
-                                  ? `${(process.env.NEXT_PUBLIC_IMG_URL || '').replace(/\/+$/, '')}/${achievement.image_url.replace(/^\/+/, '')}`
-                                  : 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1920&auto=format&fit=crop'
-                              }
+                              src={achievement.image_url}
                               alt={achievement.name}
                               fill
                               className="object-cover"
-                              priority={index === 0} // Prioritize loading the first image
-                              sizes="(max-width: 768px) 100vw, 45vw" // Help browser optimize loading
+                              priority={index === 0}
+                              sizes="(max-width: 768px) 100vw, 45vw"
                             />
                           </motion.div>
                           <div className="absolute left-4 top-4 z-20">
