@@ -82,20 +82,41 @@ export default function ExecomGrid({
     'RAS Secretary',
   ];
 
-  // Filter and sort members to match the exact priority list (case-insensitive)
-  const sortedPriorityMembers = useMemo(() => {
-    return positionOrder
-      .map((position) =>
-        members.find(
-          (m) =>
-            typeof m.position === 'string' &&
-            m.position.trim().toLowerCase() === position.toLowerCase(),
-        ),
-      )
-      .filter(Boolean);
+  // Group members by society, but sort by positionOrder
+  const groupedAndSortedMembers = useMemo(() => {
+    // Sort members by positionOrder
+    const sortedMembers = [...members].sort((a, b) => {
+      const aIdx = positionOrder.indexOf(a.position);
+      const bIdx = positionOrder.indexOf(b.position);
+      // If both found, sort by order
+      if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+      // If only one found, it comes first
+      if (aIdx !== -1) return -1;
+      if (bIdx !== -1) return 1;
+      // Fallback: original order
+      return 0;
+    });
+
+    // Initialize an object to hold the groups
+    const initialGroups: Record<string, any[]> = {
+      bearer: [],
+      cs: [],
+      ias: [],
+      ras: [],
+      wie: [],
+      other: [],
+    };
+
+    // Distribute sorted members into the appropriate groups
+    return sortedMembers.reduce((acc, member) => {
+      const society = member.society;
+      const mappedSociety = mapSocietyToKey(society);
+      acc[mappedSociety].push(member);
+      return acc;
+    }, initialGroups);
   }, [members]);
 
-  // Helper function to render a grid of members
+  // Helper function to render a grid of members for a society
   const renderMemberGrid = (memberList: any[]) => (
     <StaggerContainer
       className="grid grid-cols-1 justify-items-center gap-8 md:grid-cols-2 lg:grid-cols-3"
@@ -127,17 +148,27 @@ export default function ExecomGrid({
     <div className="mx-auto w-full max-w-7xl px-4">
       {isLoading ? (
         <div className="grid grid-cols-1 justify-items-center gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: positionOrder.length }).map((_, i) => (
+          {Array.from({ length: 9 }).map((_, i) => (
             <MemberCardSkeleton key={i} />
           ))}
         </div>
       ) : (
-        <section>
-          <h2 className="mb-8 text-center text-3xl font-bold">
-            Execom Members
-          </h2>
-          {renderMemberGrid(sortedPriorityMembers)}
-        </section>
+        <div className="space-y-16">
+          {displayOrder.map((societyKey) => {
+            const memberList = groupedAndSortedMembers[societyKey];
+            if (memberList && memberList.length > 0) {
+              return (
+                <section key={societyKey}>
+                  <h2 className="mb-8 text-center text-3xl font-bold">
+                    {societyHeadings[societyKey]}
+                  </h2>
+                  {renderMemberGrid(memberList)}
+                </section>
+              );
+            }
+            return null;
+          })}
+        </div>
       )}
     </div>
   );

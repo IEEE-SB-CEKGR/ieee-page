@@ -96,7 +96,6 @@ export async function fetchUpcomingEventsAction() {
     const data = await sql<UpcomingEvent>`
       SELECT fee, name, image_url, id, date, mode, venue, description,link, time
       FROM events
-      WHERE date >= CURRENT_DATE
       ORDER BY date ASC
       LIMIT 5`;
 
