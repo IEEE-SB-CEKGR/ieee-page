@@ -39,7 +39,7 @@ export default function Footer() {
           <motion.div variants={item}>
             <div className="relative mb-6 h-12 w-40">
               <Image
-                src="/ieee-logo-light.png"
+                src="/ieee-logo-trans.png"
                 alt="IEEE Logo"
                 fill
                 className="object-contain object-left"
