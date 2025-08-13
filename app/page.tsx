@@ -464,7 +464,10 @@ export default function Page() {
                 variants={fadeInUp}
                 custom={3}
               >
-                <Link href="/join" className="group">
+                <Link
+                  href="https://www.ieee.org/membership/join"
+                  className="group"
+                >
                   <motion.button
                     className="flex items-center gap-2 rounded-lg bg-accent px-6 py-3 font-medium text-primary transition-all duration-300 hover:bg-accent/90 group-hover:shadow-lg group-hover:shadow-accent/20"
                     whileHover={{ scale: 1.05 }}

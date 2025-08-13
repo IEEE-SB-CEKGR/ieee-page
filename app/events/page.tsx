@@ -466,7 +466,7 @@ export default function EventsPage() {
                   Become an IEEE member for exclusive access
                 </p>
               </div>
-              <Link href="/join">
+              <Link href="https://www.ieee.org/membership/join">
                 <motion.button
                   className="w-full rounded-lg bg-accent px-6 py-3 font-medium text-primary transition-all duration-300 hover:bg-accent/90 sm:w-auto"
                   whileHover={{ scale: 1.05 }}

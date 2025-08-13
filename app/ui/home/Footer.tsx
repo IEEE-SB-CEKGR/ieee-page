@@ -39,7 +39,7 @@ export default function Footer() {
           <motion.div variants={item}>
             <div className="relative mb-6 h-12 w-40">
               <Image
-                src="/ieee-logo-light.png"
+                src="/ieee-logo-trans.png"
                 alt="IEEE Logo"
                 fill
                 className="object-contain object-left"
@@ -134,6 +134,33 @@ export default function Footer() {
               </p> */}
             </address>
           </motion.div>
+        </motion.div>
+
+        {/* Map Section */}
+        <motion.div
+          className="mt-12 border-t border-white/10 pt-8"
+          variants={item}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+        >
+          <h3 className="mb-6 text-center text-lg font-semibold text-white">
+            Find Us
+          </h3>
+          <div className="flex justify-center">
+            <div className="w-full max-w-4xl overflow-hidden rounded-lg border border-white/10">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d752.5578441094592!2d76.62064126951381!3d9.667515903605512!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b07d293a982ceeb%3A0xd62bf193983589fe!2sCollege%20of%20Engineering%20Kidangoor!5e1!3m2!1sen!2sin!4v1755103193310!5m2!1sen!2sin"
+                width="100%"
+                height="300"
+                style={{ border: 0 }}
+                allowFullScreen={true}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="w-full"
+              />
+            </div>
+          </div>
         </motion.div>
 
         {/* Copyright */}

@@ -103,7 +103,7 @@ export default function Header() {
                 whileHover={{ borderColor: 'rgba(255,255,255,0.2)' }}
               >
                 <Image
-                  src="/ieee-logo-light.png"
+                  src="/ieee-logo-trans.png"
                   alt="IEEE"
                   width={30}
                   height={30}
