@@ -12,7 +12,7 @@ const societyHeadings = {
   ias: 'IAS',
   ras: 'RAS',
   wie: 'WIE',
-  other: 'Members', // A fallback for any other society value
+  other: 'Members',
 };
 
 // Mapping function to handle different database values
@@ -84,21 +84,39 @@ export default function ExecomGrid({
 
   // Group members by society, but sort by positionOrder
   const groupedAndSortedMembers = useMemo(() => {
-    const sortedMembers = [...members].sort((a, b) => {
-      const aPos =
-        typeof a.position === 'string' ? a.position.toLowerCase() : '';
-      const bPos =
-        typeof b.position === 'string' ? b.position.toLowerCase() : '';
+    console.log(
+      'Original members:',
+      members.map((m) => ({
+        position: m.position,
+        society: m.society,
+        name: m.name,
+      })),
+    );
 
-      const aIdx = positionOrder.findIndex((pos) => pos.toLowerCase() === aPos);
-      const bIdx = positionOrder.findIndex((pos) => pos.toLowerCase() === bPos);
+    const sortedMembers = [...members].sort((a, b) => {
+      const aRole = (a.role || '').toString().toLowerCase().trim();
+      const bRole = (b.role || '').toString().toLowerCase().trim();
+
+      const aIdx = positionOrder.findIndex(
+        (pos) => pos.toLowerCase().trim() === aRole,
+      );
+      const bIdx = positionOrder.findIndex(
+        (pos) => pos.toLowerCase().trim() === bRole,
+      );
+
       // If both found, sort by order
-      if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+      if (aIdx !== -1 && bIdx !== -1) {
+        return aIdx - bIdx;
+      }
       // If only one found, it comes first
-      if (aIdx !== -1) return -1;
-      if (bIdx !== -1) return 1;
-      // Fallback: original order
-      return 0;
+      if (aIdx !== -1) {
+        return -1;
+      }
+      if (bIdx !== -1) {
+        return 1;
+      }
+      // If neither found, sort alphabetically by role
+      return aRole.localeCompare(bRole);
     });
 
     // Initialize an object to hold the groups
