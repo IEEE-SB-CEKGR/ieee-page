@@ -84,10 +84,14 @@ export default function ExecomGrid({
 
   // Group members by society, but sort by positionOrder
   const groupedAndSortedMembers = useMemo(() => {
-    // Sort members by positionOrder
     const sortedMembers = [...members].sort((a, b) => {
-      const aIdx = positionOrder.indexOf(a.position);
-      const bIdx = positionOrder.indexOf(b.position);
+      const aPos =
+        typeof a.position === 'string' ? a.position.toLowerCase() : '';
+      const bPos =
+        typeof b.position === 'string' ? b.position.toLowerCase() : '';
+
+      const aIdx = positionOrder.findIndex((pos) => pos.toLowerCase() === aPos);
+      const bIdx = positionOrder.findIndex((pos) => pos.toLowerCase() === bPos);
       // If both found, sort by order
       if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
       // If only one found, it comes first
