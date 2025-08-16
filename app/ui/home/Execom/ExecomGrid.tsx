@@ -56,67 +56,42 @@ export default function ExecomGrid({
 }) {
   // Custom order for positions
   const positionOrder = [
-    'SB Chairperson',
-    'SB Vice Chairperson',
-    'SB Secretary',
-    'SB Joint Secretary',
-    'SB Treasurer',
+    'SB CHAIRPERSON',
+    'SB VICE CHAIRPERSON',
+    'SB SECRETARY',
+    'SB JOINT SECRETARY',
+    'SB TREASURER',
     'MDC',
-    'Technical Coordinator',
-    'Link Rep',
-    'Web Master',
+    'TECHNICAL COORDINATOR',
+    'LINK REP',
+    'WEB MASTER',
     'ECC',
-    'Operations Manager',
-    'IAS Chairperson',
-    'IAS Vice Chairperson',
-    'IAS Secretary',
-    'CS Chairperson',
-    'CS Vice Chairperson',
-    'CS Secretary',
-    'CS Women in Computing',
-    'WIE Chairperson',
-    'WIE Vice Chairperson',
-    'WIE Secretary',
-    'RAS Chairperson',
-    'RAS Vice Chairperson',
-    'RAS Secretary',
+    'OPERATIONS MANAGER',
+    'CHAIRPERSON',
+    'VICE CHAIRPERSON',
+    'SECRETARY',
+    'WOMEN IN COMPUTING',
   ];
 
   // Group members by society, but sort by positionOrder
   const groupedAndSortedMembers = useMemo(() => {
-    console.log(
-      'Original members:',
-      members.map((m) => ({
-        position: m.position,
-        society: m.society,
-        name: m.name,
-      })),
-    );
+    // Filter members whose role matches positionOrder (case-insensitive, trimmed)
+    const filteredMembers = members.filter((m) => {
+      const role = (m.role || '').toString().toLowerCase().trim();
+      return positionOrder.some((pos) => pos.toLowerCase().trim() === role);
+    });
 
-    const sortedMembers = [...members].sort((a, b) => {
+    // Sort strictly by positionOrder
+    const sortedMembers = [...filteredMembers].sort((a, b) => {
       const aRole = (a.role || '').toString().toLowerCase().trim();
       const bRole = (b.role || '').toString().toLowerCase().trim();
-
       const aIdx = positionOrder.findIndex(
         (pos) => pos.toLowerCase().trim() === aRole,
       );
       const bIdx = positionOrder.findIndex(
         (pos) => pos.toLowerCase().trim() === bRole,
       );
-
-      // If both found, sort by order
-      if (aIdx !== -1 && bIdx !== -1) {
-        return aIdx - bIdx;
-      }
-      // If only one found, it comes first
-      if (aIdx !== -1) {
-        return -1;
-      }
-      if (bIdx !== -1) {
-        return 1;
-      }
-      // If neither found, sort alphabetically by role
-      return aRole.localeCompare(bRole);
+      return aIdx - bIdx;
     });
 
     // Initialize an object to hold the groups
