@@ -11,6 +11,12 @@ interface YearSelectorProps {
 }
 
 const YearSelector = ({ currentYear, years }: YearSelectorProps) => {
+  // Automatically select the year if only one is available
+  useEffect(() => {
+    if (years.length === 1 && currentYear !== years[0]) {
+      handleYearChange(years[0]);
+    }
+  }, [years, currentYear]);
   const router = useRouter();
   const [windowStart, setWindowStart] = useState(0);
   const windowSize = 5;
@@ -67,9 +73,9 @@ const YearSelector = ({ currentYear, years }: YearSelectorProps) => {
 
   // Dynamic width based on number of years - scales progressively
   const getDynamicWidth = () => {
-    const baseWidth = 10;
+    const baseWidth = 12;
     const increment = 2.5;
-    const maxWidth = 24;
+    const maxWidth = 26;
 
     const calculatedWidth = baseWidth + (years.length - 1) * increment;
     return Math.min(calculatedWidth, maxWidth);
