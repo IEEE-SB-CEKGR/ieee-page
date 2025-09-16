@@ -12,7 +12,7 @@ const societyHeadings = {
   ias: 'IAS',
   ras: 'RAS',
   wie: 'WIE',
-  other: 'Members', // A fallback for any other society value
+  other: 'Members',
 };
 
 // Mapping function to handle different database values
@@ -56,45 +56,47 @@ export default function ExecomGrid({
 }) {
   // Custom order for positions
   const positionOrder = [
-    'SB Chairperson',
-    'SB Vice Chairperson',
-    'SB Secretary',
-    'SB Joint Secretary',
-    'SB Treasurer',
+    'BRANCH COUNSELOR',
+    'SB CHAIRPERSON',
+    'SB VICE CHAIRPERSON',
+    'SB SECRETARY',
+    'SB JOINT SECRETARY',
+    'SB TREASURER',
     'MDC',
-    'Technical Coordinator',
-    'Link Rep',
-    'Web Master',
+    'TECHNICAL COORDINATOR',
+    'LINK REP',
+    'WEB MASTER',
     'ECC',
-    'Operations Manager',
-    'IAS Chairperson',
-    'IAS Vice Chairperson',
-    'IAS Secretary',
-    'CS Chairperson',
-    'CS Vice Chairperson',
-    'CS Secretary',
-    'CS Women in Computing',
-    'WIE Chairperson',
-    'WIE Vice Chairperson',
-    'WIE Secretary',
-    'RAS Chairperson',
-    'RAS Vice Chairperson',
-    'RAS Secretary',
+    'OPERATIONS MANAGER',
+    'CS CHAPTER ADVISOR',
+    'IAS CHAPTER ADVISOR',
+    'RAS CHAPTER ADVISOR',
+    'WIE CHAPTER ADVISOR',
+    'CHAIRPERSON',
+    'VICE CHAIRPERSON',
+    'SECRETARY',
+    'WOMEN IN COMPUTING',
   ];
 
   // Group members by society, but sort by positionOrder
   const groupedAndSortedMembers = useMemo(() => {
-    // Sort members by positionOrder
-    const sortedMembers = [...members].sort((a, b) => {
-      const aIdx = positionOrder.indexOf(a.position);
-      const bIdx = positionOrder.indexOf(b.position);
-      // If both found, sort by order
-      if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
-      // If only one found, it comes first
-      if (aIdx !== -1) return -1;
-      if (bIdx !== -1) return 1;
-      // Fallback: original order
-      return 0;
+    // Filter members whose role matches positionOrder (case-insensitive, trimmed)
+    const filteredMembers = members.filter((m) => {
+      const role = (m.role || '').toString().toLowerCase().trim();
+      return positionOrder.some((pos) => pos.toLowerCase().trim() === role);
+    });
+
+    // Sort strictly by positionOrder
+    const sortedMembers = [...filteredMembers].sort((a, b) => {
+      const aRole = (a.role || '').toString().toLowerCase().trim();
+      const bRole = (b.role || '').toString().toLowerCase().trim();
+      const aIdx = positionOrder.findIndex(
+        (pos) => pos.toLowerCase().trim() === aRole,
+      );
+      const bIdx = positionOrder.findIndex(
+        (pos) => pos.toLowerCase().trim() === bRole,
+      );
+      return aIdx - bIdx;
     });
 
     // Initialize an object to hold the groups
