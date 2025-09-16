@@ -348,7 +348,7 @@ export default function Header() {
                   className="mt-6 flex justify-center"
                 >
                   <Image
-                    src="/ieee-logo-light.png"
+                    src="/ieee-logo-trans.png"
                     alt="IEEE Logo"
                     width={90}
                     height={25}

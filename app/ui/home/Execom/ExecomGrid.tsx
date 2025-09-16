@@ -56,6 +56,7 @@ export default function ExecomGrid({
 }) {
   // Custom order for positions
   const positionOrder = [
+    'BRANCH COUNSELOR',
     'SB CHAIRPERSON',
     'SB VICE CHAIRPERSON',
     'SB SECRETARY',
@@ -67,6 +68,10 @@ export default function ExecomGrid({
     'WEB MASTER',
     'ECC',
     'OPERATIONS MANAGER',
+    'CS CHAPTER ADVISOR',
+    'IAS CHAPTER ADVISOR',
+    'RAS CHAPTER ADVISOR',
+    'WIE CHAPTER ADVISOR',
     'CHAIRPERSON',
     'VICE CHAIRPERSON',
     'SECRETARY',
