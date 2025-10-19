@@ -162,13 +162,18 @@ export default function EventsPage() {
     (event) => new Date(event.date) < now,
   );
 
-  // Sort each group by date
-  const sortedUpcoming = [...upcomingEvents].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-  );
-  const sortedPast = [...pastEvents].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-  );
+  // Sort each group by date according to the selected sort order
+  const sortedUpcoming = [...upcomingEvents].sort((a, b) => {
+    const ta = new Date(a.date).getTime();
+    const tb = new Date(b.date).getTime();
+    return sortOrder === 'asc' ? ta - tb : tb - ta;
+  });
+
+  const sortedPast = [...pastEvents].sort((a, b) => {
+    const ta = new Date(a.date).getTime();
+    const tb = new Date(b.date).getTime();
+    return sortOrder === 'asc' ? ta - tb : tb - ta;
+  });
 
   const visibleUpcoming = sortedUpcoming.slice(0, visibleCount);
   const visiblePast = sortedPast.slice(0, visibleCount);
