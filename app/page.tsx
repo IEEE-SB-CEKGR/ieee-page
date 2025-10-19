@@ -626,7 +626,7 @@ export default function Page() {
               [
                 {
                   icon: Users,
-                  value: statsData.members,
+                  value: 100, // hardcoded member count
                   label: 'Members',
                   suffix: '+',
                 },
@@ -644,7 +644,7 @@ export default function Page() {
                 },
                 {
                   icon: BookOpen,
-                  value: statsData.years,
+                  value: 20, // hardcoded years count
                   label: 'Years',
                   suffix: '+',
                 },
