@@ -14,6 +14,18 @@ const nextConfig = {
       }
     ]
   },
+  async rewrites() {
+    return [
+      {
+        source: '/Certificates',
+        destination: 'https://certifyeasy-web.vercel.app/Certificates',
+      },
+      {
+        source: '/Certificates/:path*',
+        destination: 'https://certifyeasy-web.vercel.app/Certificates/:path*',
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;
