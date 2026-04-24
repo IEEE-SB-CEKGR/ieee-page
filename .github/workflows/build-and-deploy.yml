@@ -34,7 +34,10 @@ jobs:
           push: true
           tags: aka717/ieee-page:${{ github.sha }}
           build-args: |
-            DATABASE_URL=${{ secrets.DATABASE_URL }} 
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            NEXT_PUBLIC_STACK_PROJECT_ID=${{ secrets.NEXT_PUBLIC_STACK_PROJECT_ID }}
+            NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY=${{ secrets.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY }}
+            NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
 
       - name: Clone ieee-manifests repo, update, and push
         env:

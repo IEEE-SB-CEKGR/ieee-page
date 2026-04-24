@@ -11,9 +11,21 @@ COPY package.json ./
 RUN bun install
 
 # Build stage
+# Build stage
 FROM dependencies AS build
 # Copy source code
 COPY . .
+
+# Add build arguments for Next.js public variables
+ARG NEXT_PUBLIC_STACK_PROJECT_ID
+ARG NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY
+ARG NEXT_PUBLIC_SUPABASE_URL
+
+# Make them available as environment variables during build
+ENV NEXT_PUBLIC_STACK_PROJECT_ID=$NEXT_PUBLIC_STACK_PROJECT_ID
+ENV NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY=$NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY
+ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
+
 # Add next.config.js with standalone output
 RUN echo "/** @type {import('next').NextConfig} */\nconst nextConfig = { output: 'standalone' };\nmodule.exports = nextConfig;" > next.config.js
 # Build the application
