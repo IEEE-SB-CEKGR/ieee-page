@@ -76,26 +76,30 @@ export default function ExecomGrid({
     'VICE CHAIRPERSON',
     'SECRETARY',
     'WOMEN IN COMPUTING',
+    'TECH LEAD'
   ];
 
   // Group members by society, but sort by positionOrder
   const groupedAndSortedMembers = useMemo(() => {
-    // Filter members whose role matches positionOrder (case-insensitive, trimmed)
-    const filteredMembers = members.filter((m) => {
-      const role = (m.role || '').toString().toLowerCase().trim();
-      return positionOrder.some((pos) => pos.toLowerCase().trim() === role);
-    });
-
-    // Sort strictly by positionOrder
-    const sortedMembers = [...filteredMembers].sort((a, b) => {
+    
+    // Sort the members safely without filtering anyone out
+    const sortedMembers = [...members].sort((a, b) => {
       const aRole = (a.role || '').toString().toLowerCase().trim();
       const bRole = (b.role || '').toString().toLowerCase().trim();
-      const aIdx = positionOrder.findIndex(
+      
+      let aIdx = positionOrder.findIndex(
         (pos) => pos.toLowerCase().trim() === aRole,
       );
-      const bIdx = positionOrder.findIndex(
+      let bIdx = positionOrder.findIndex(
         (pos) => pos.toLowerCase().trim() === bRole,
       );
+
+      // If a role from the DB is not found in positionOrder, 
+      // assign it a high number (e.g., 999) so they appear at the bottom 
+      // instead of breaking the layout or disappearing.
+      if (aIdx === -1) aIdx = 999;
+      if (bIdx === -1) bIdx = 999;
+
       return aIdx - bIdx;
     });
 
