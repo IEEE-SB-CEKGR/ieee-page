@@ -26,6 +26,7 @@ export type Member = {
   name: string;
   type: string;
   role: string;
+  society: string;
   image_url: string;
   year: string;
 };
