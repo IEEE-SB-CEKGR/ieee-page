@@ -1,3 +1,4 @@
+// app/ui/home/Execom/ExecomGrid.tsx
 'use client';
 
 import { Suspense, useMemo } from 'react';
@@ -47,6 +48,55 @@ const displayOrder: (keyof typeof societyHeadings)[] = [
   'other',
 ];
 
+// NEW WAY: A robust keyword-based weighting system 
+// Lower number = Higher priority (appears first)
+const getRolePriority = (role: string): number => {
+  if (!role) return 999;
+  
+  const r = role.toLowerCase().trim();
+
+  // 1. Counselors & Advisors (Always Top)
+  if (r.includes('counselor') || r.includes('counsellor')) return 10;
+  if (r.includes('advisor')) return 20;
+
+  // 2. Core Chairs
+  if (r === 'sb chairperson' || r === 'chairperson' || r === 'chair') return 30;
+  if (r.includes('chairperson') && !r.includes('vice') && !r.includes('joint')) return 35;
+  if (r.includes('chair') && !r.includes('vice') && !r.includes('joint')) return 38;
+
+  // 3. Vice Chairs
+  if (r === 'sb vice chairperson' || r === 'vice chairperson' || r === 'vice chair') return 40;
+  if (r.includes('vice') && (r.includes('chairperson') || r.includes('chair'))) return 45;
+
+  // 4. Secretaries
+  if (r === 'sb secretary' || r === 'secretary') return 50;
+  if (r.includes('secretary') && !r.includes('joint') && !r.includes('assistant')) return 55;
+
+  // 5. Joint Secretaries / Assistant
+  if (r === 'sb joint secretary' || r === 'joint secretary') return 60;
+  if (r.includes('joint') && r.includes('secretary')) return 65;
+
+  // 6. Treasurers
+  if (r === 'sb treasurer' || r === 'treasurer') return 70;
+  if (r.includes('treasurer')) return 75;
+
+  // 7. Specific Functional Roles
+  if (r === 'mdc' || r.includes('membership development')) return 80;
+  if (r.includes('technical coordinator') || r.includes('tech coord')) return 90;
+  if (r.includes('link rep') || r.includes('link representative')) return 100;
+  if (r.includes('web master') || r.includes('webmaster')) return 110;
+  if (r === 'ecc' || r.includes('electronic communications')) return 120;
+  if (r.includes('operations manager') || r.includes('operations')) return 130;
+  if (r.includes('women in computing') || r === 'wic') return 140;
+  if (r.includes('tech lead') || r.includes('technical lead')) return 150;
+
+  // 8. Catch-all for other leads
+  if (r.includes('lead') || r.includes('head') || r.includes('coordinator')) return 200;
+
+  // 999. Unrecognized roles drop to the bottom of their respective group
+  return 999;
+};
+
 export default function ExecomGrid({
   members,
   isLoading,
@@ -54,53 +104,14 @@ export default function ExecomGrid({
   members: any[];
   isLoading: boolean;
 }) {
-  // Custom order for positions
-  const positionOrder = [
-    'BRANCH COUNSELOR',
-    'SB CHAIRPERSON',
-    'SB VICE CHAIRPERSON',
-    'SB SECRETARY',
-    'SB JOINT SECRETARY',
-    'SB TREASURER',
-    'MDC',
-    'TECHNICAL COORDINATOR',
-    'LINK REP',
-    'WEB MASTER',
-    'ECC',
-    'OPERATIONS MANAGER',
-    'CS CHAPTER ADVISOR',
-    'IAS CHAPTER ADVISOR',
-    'RAS CHAPTER ADVISOR',
-    'WIE CHAPTER ADVISOR',
-    'CHAIRPERSON',
-    'VICE CHAIRPERSON',
-    'SECRETARY',
-    'WOMEN IN COMPUTING',
-    'TECH LEAD'
-  ];
-
-  // Group members by society, but sort by positionOrder
+  // Group members by society, and sort them using the robust weighting function
   const groupedAndSortedMembers = useMemo(() => {
     
     // Sort the members safely without filtering anyone out
     const sortedMembers = [...members].sort((a, b) => {
-      const aRole = (a.role || '').toString().toLowerCase().trim();
-      const bRole = (b.role || '').toString().toLowerCase().trim();
-      
-      let aIdx = positionOrder.findIndex(
-        (pos) => pos.toLowerCase().trim() === aRole,
-      );
-      let bIdx = positionOrder.findIndex(
-        (pos) => pos.toLowerCase().trim() === bRole,
-      );
-
-      // If a role from the DB is not found in positionOrder, 
-      // assign it a high number (e.g., 999) so they appear at the bottom 
-      // instead of breaking the layout or disappearing.
-      if (aIdx === -1) aIdx = 999;
-      if (bIdx === -1) bIdx = 999;
-
-      return aIdx - bIdx;
+      const aPriority = getRolePriority(a.role);
+      const bPriority = getRolePriority(b.role);
+      return aPriority - bPriority;
     });
 
     // Initialize an object to hold the groups

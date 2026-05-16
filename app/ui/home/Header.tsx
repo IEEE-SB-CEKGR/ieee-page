@@ -15,7 +15,7 @@ import { usePathname } from 'next/navigation';
 const navItems = [
   { name: 'HOME', href: '/' },
   { name: 'EVENTS', href: '/events' },
-  { name: 'EXECOM', href: '/execom/2024' },
+  { name: 'EXECOM', href: '/execom' },
   { name: 'ABOUT', href: '/about' },
   { name: 'ACHIEVEMENTS', href: '/achievements' },
 ];
