@@ -1,5 +1,4 @@
-// app/execom/[year]/page.tsx
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { filterMembersOnYear } from '@/app/lib/actions';
 import { sql } from '@vercel/postgres';
 import Execom from '@/app/ui/home/Execom/index';
@@ -10,7 +9,6 @@ async function loadYears() {
     FROM members
     ORDER BY year
   `;
-  // convert to string[], or keep as number[] if you prefer
   return result.rows.map((r) => r.year.toString());
 }
 
@@ -23,13 +21,18 @@ export default async function Page({ params }: { params: { year: string } }) {
     loadYears(),
   ]);
 
-  if (!members) {
+  // NEW: If the requested year has no members and valid years exist, redirect to the latest year.
+  if ((!members || members.length === 0) && years.length > 0 && !years.includes(year)) {
+    const latestYear = years[years.length - 1]; // Array is ordered ascending, so the last is the latest
+    redirect(`/execom/${latestYear}`);
+  }
+
+  if (!members && years.length === 0) {
     notFound();
   }
 
   return (
-    <main className="…">
-      {/* pass the full list of years plus the current one */}
+    <main className="w-full">
       <Execom members={members} year={year} years={years} />
     </main>
   );
