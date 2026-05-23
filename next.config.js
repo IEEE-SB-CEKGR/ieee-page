@@ -24,6 +24,14 @@ const nextConfig = {
         source: '/Certificates/:path*',
         destination: 'https://certifyeasy-web.vercel.app/Certificates/:path*',
       },
+      {
+        source: '/buildx',
+        destination: 'https://<your-buildx-deployment-url>.vercel.app',
+      },
+      {
+        source: '/buildx/:path*',
+        destination: 'https://<your-buildx-deployment-url>.vercel.app/:path*',
+      },
     ];
   },
 };
