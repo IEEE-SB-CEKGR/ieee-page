@@ -15,16 +15,34 @@ const nextConfig = {
     ]
   },
   async rewrites() {
-    return [
-      {
-        source: '/Certificates',
-        destination: 'https://certifyeasy-web.vercel.app/Certificates',
-      },
-      {
-        source: '/Certificates/:path*',
-        destination: 'https://certifyeasy-web.vercel.app/Certificates/:path*',
-      },
-    ];
+    return {
+      // 'beforeFiles' forces Next.js to proxy to BuildX BEFORE looking at your own pages
+      beforeFiles: [
+        {
+          source: '/buildx',
+          destination: 'https://buildx-2026.vercel.app/',
+        },
+        {
+          source: '/buildx/',
+          destination: 'https://buildx-2026.vercel.app/',
+        },
+        {
+          source: '/buildx/:path*',
+          destination: 'https://buildx-2026.vercel.app/:path*',
+        },
+      ],
+      // Your existing rewrites run normally afterward
+      afterFiles: [
+        {
+          source: '/Certificates',
+          destination: 'https://certifyeasy-web.vercel.app/Certificates',
+        },
+        {
+          source: '/Certificates/:path*',
+          destination: 'https://certifyeasy-web.vercel.app/Certificates/:path*',
+        },
+      ]
+    };
   },
 };
 
