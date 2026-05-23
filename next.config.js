@@ -26,11 +26,11 @@ const nextConfig = {
       },
       {
         source: '/buildx',
-        destination: 'https://<your-buildx-deployment-url>.vercel.app',
+        destination: 'https://buildx-2026.vercel.app/',
       },
       {
         source: '/buildx/:path*',
-        destination: 'https://<your-buildx-deployment-url>.vercel.app/:path*',
+        destination: 'https://buildx-2026.vercel.app/:path*',
       },
     ];
   },
