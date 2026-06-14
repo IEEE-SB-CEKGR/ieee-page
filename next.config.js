@@ -42,6 +42,18 @@ const nextConfig = {
           source: '/buildx/:path*',
           destination: 'https://buildx-2026.vercel.app/:path*',
         },
+        {
+          source: '/C2C',
+          destination: 'https://c2c-2026.vercel.app',
+        },
+        {
+          source: '/C2C/',
+          destination: 'https://c2c-2026.vercel.app/', 
+        },
+        {
+          source: '/C2C/:path*',
+          destination: 'https://c2c-2026.vercel.app/:path*', 
+        },
       ],
       afterFiles: [
         {
