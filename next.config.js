@@ -16,8 +16,20 @@ const nextConfig = {
   },
   async rewrites() {
     return {
-      // 'beforeFiles' forces Next.js to proxy to BuildX BEFORE looking at your own pages
       beforeFiles: [
+        {
+          source: '/circuitron2026',
+          destination: 'https://your-circuitron-domain.vercel.app',
+        },
+        {
+          source: '/circuitron2026/',
+          destination: 'https://your-circuitron-domain.vercel.app/',
+        },
+        {
+          source: '/circuitron2026/:path*',
+          destination: 'https://your-circuitron-domain.vercel.app/:path*',
+        },
+
         {
           source: '/buildx',
           destination: 'https://buildx-2026.vercel.app/',
@@ -30,8 +42,19 @@ const nextConfig = {
           source: '/buildx/:path*',
           destination: 'https://buildx-2026.vercel.app/:path*',
         },
+        {
+          source: '/C2C',
+          destination: 'https://c2c-2026.vercel.app',
+        },
+        {
+          source: '/C2C/',
+          destination: 'https://c2c-2026.vercel.app/', 
+        },
+        {
+          source: '/C2C/:path*',
+          destination: 'https://c2c-2026.vercel.app/:path*', 
+        },
       ],
-      // Your existing rewrites run normally afterward
       afterFiles: [
         {
           source: '/Certificates',
