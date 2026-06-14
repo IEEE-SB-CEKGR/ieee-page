@@ -30,17 +30,14 @@ const nextConfig = {
           destination: 'https://buildx-2026.vercel.app/:path*',
         },
         {
-          source: '/C2C',
-          destination: 'https://c2c-2026.vercel.app/C2C',
-        },
-        {
-          source: '/C2C/',
-          destination: 'https://c2c-2026.vercel.app/C2C', 
-        },
-        {
-          source: '/C2C/:path*',
-          destination: 'https://c2c-2026.vercel.app/C2C/:path*', 
-        },
+        source: '/C2C',
+        // Replace this URL with the actual Vercel deployment URL of your C2C site
+        destination: 'https://c2c-marketing.vercel.app/C2C', 
+      },
+      {
+        source: '/C2C/:path*',
+        destination: 'https://c2c-marketing.vercel.app/C2C/:path*',
+      },
       ],
       afterFiles: [
         {
