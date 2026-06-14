@@ -18,19 +18,6 @@ const nextConfig = {
     return {
       beforeFiles: [
         {
-          source: '/circuitron2026',
-          destination: 'https://your-circuitron-domain.vercel.app',
-        },
-        {
-          source: '/circuitron2026/',
-          destination: 'https://your-circuitron-domain.vercel.app/',
-        },
-        {
-          source: '/circuitron2026/:path*',
-          destination: 'https://your-circuitron-domain.vercel.app/:path*',
-        },
-
-        {
           source: '/buildx',
           destination: 'https://buildx-2026.vercel.app/',
         },
@@ -44,15 +31,15 @@ const nextConfig = {
         },
         {
           source: '/C2C',
-          destination: 'https://c2c-2026.vercel.app',
+          destination: 'https://c2c-2026.vercel.app/C2C',
         },
         {
           source: '/C2C/',
-          destination: 'https://c2c-2026.vercel.app/', 
+          destination: 'https://c2c-2026.vercel.app/C2C', 
         },
         {
           source: '/C2C/:path*',
-          destination: 'https://c2c-2026.vercel.app/:path*', 
+          destination: 'https://c2c-2026.vercel.app/C2C/:path*', 
         },
       ],
       afterFiles: [
