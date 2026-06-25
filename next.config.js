@@ -38,11 +38,11 @@ const nextConfig = {
           destination: 'https://buildx-2026.vercel.app/:path*',
         },
         {
-          source: '/Askxpert/',
+          source: '/askxpert/',
           destination: 'https://askxpert.vercel.app/',
         },
         {
-          source: '/Askxpert/:path*',
+          source: '/askxpert/:path*',
           destination: 'https://askxpert.vercel.app/:path*',
         }
       ],
