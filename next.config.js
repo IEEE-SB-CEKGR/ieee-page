@@ -17,12 +17,12 @@ const nextConfig = {
   async rewrites() {
     return {
       beforeFiles: [
-         {
+        {
           source: '/C2C',
-          destination: 'https://c2c-2026.vercel.app/C2C', 
+          destination: 'https://c2c-2026.vercel.app/C2C',
         },
         {
-          source: '/C2C/:path*', 
+          source: '/C2C/:path*',
           destination: 'https://c2c-2026.vercel.app/C2C/:path*',
         },
         {
@@ -37,6 +37,14 @@ const nextConfig = {
           source: '/buildx/:path*',
           destination: 'https://buildx-2026.vercel.app/:path*',
         },
+        {
+          source: '/askxpert/',
+          destination: 'https://askxpert.vercel.app/',
+        },
+        {
+          source: '/askxpert/:path*',
+          destination: 'https://askxpert.vercel.app/:path*',
+        }
       ],
       afterFiles: [
         {
