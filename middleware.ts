@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { sql } from '@vercel/postgres';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -14,9 +13,11 @@ export async function middleware(request: NextRequest) {
     pathname === '/about' ||
     pathname === '/events' ||
     pathname === '/execom' ||
-    pathname.startsWith('/about') ||
-    pathname.startsWith('/events') ||
-    pathname.startsWith('/execom')
+    pathname === '/achievements' ||
+    pathname.startsWith('/about/') ||
+    pathname.startsWith('/events/') ||
+    pathname.startsWith('/execom/') ||
+    pathname.startsWith('/achievements/')
   ) {
     return NextResponse.next();
   }
@@ -31,29 +32,41 @@ export async function middleware(request: NextRequest) {
   const subPath = segments.slice(1).join('/');
 
   try {
-    // Query the database for an active website with this slug
-    const result = await sql`
-      SELECT destination_url FROM websites
-      WHERE slug = ${slug} AND is_active = true
-      LIMIT 1
-    `;
+    // Construct internal API lookup URL (runs in Node.js runtime)
+    const apiUrl = new URL(
+      `/api/websites/${encodeURIComponent(slug)}`,
+      request.nextUrl.origin
+    );
 
-    if (result.rows.length > 0) {
-      const destinationUrl = result.rows[0].destination_url;
+    const response = await fetch(apiUrl.toString(), {
+      next: { revalidate: 60 },
+    });
 
-      // Build the rewrite URL
-      // Remove trailing slash from destination URL for clean joining
-      const cleanDestination = destinationUrl.replace(/\/+$/, '');
-      const rewriteUrl = subPath
-        ? `${cleanDestination}/${subPath}`
-        : cleanDestination;
+    if (response.ok) {
+      const data = await response.json();
 
-      return NextResponse.rewrite(new URL(rewriteUrl));
+      if (data && data.destinationUrl) {
+        let destinationUrl: string = data.destinationUrl.trim();
+
+        // Ensure destination starts with protocol
+        if (
+          !destinationUrl.startsWith('http://') &&
+          !destinationUrl.startsWith('https://')
+        ) {
+          destinationUrl = `https://${destinationUrl}`;
+        }
+
+        // Clean trailing slashes
+        const cleanDestination = destinationUrl.replace(/\/+$/, '');
+        const rewriteUrl = subPath
+          ? `${cleanDestination}/${subPath}`
+          : cleanDestination;
+
+        return NextResponse.rewrite(new URL(rewriteUrl));
+      }
     }
   } catch (error) {
-    console.error('Middleware: Error querying websites table:', error);
-    // If database query fails, fall through to normal routing
-    // The hardcoded rewrites in next.config.js will still work as fallback
+    console.error('Middleware: Error querying websites API:', error);
   }
 
   return NextResponse.next();
