@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, memo } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeftIcon,
@@ -17,6 +17,51 @@ interface EventWebsiteEmbedProps {
   subPath?: string;
 }
 
+// Memoized Iframe container to ensure React NEVER re-renders or resets the iframe DOM element
+const StableIframe = memo(function StableIframe({
+  initialUrl,
+  title,
+  onFirstLoad,
+}: {
+  initialUrl: string;
+  title: string;
+  onFirstLoad: () => void;
+}) {
+  const hasLoadedRef = useRef(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    // Clear any previous iframe if url actually changes
+    container.innerHTML = '';
+
+    const iframe = document.createElement('iframe');
+    iframe.src = initialUrl;
+    iframe.title = title;
+    iframe.className = 'w-full h-full border-0 bg-[#040D21]';
+    iframe.allow =
+      'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; camera; microphone; geolocation';
+    iframe.setAttribute('allowfullscreen', 'true');
+
+    iframe.onload = () => {
+      if (!hasLoadedRef.current) {
+        hasLoadedRef.current = true;
+        onFirstLoad();
+      }
+    };
+
+    container.appendChild(iframe);
+
+    return () => {
+      container.innerHTML = '';
+    };
+  }, [initialUrl, title, onFirstLoad]);
+
+  return <div ref={containerRef} className="w-full h-full" />;
+});
+
 export default function EventWebsiteEmbed({
   name,
   slug,
@@ -26,21 +71,25 @@ export default function EventWebsiteEmbed({
   const [isLoading, setIsLoading] = useState(true);
   const [isMinimized, setIsMinimized] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
     setMounted(true);
-    // Auto-minimize the floating badge after 4 seconds
+    // Auto-minimize the floating controls after 4 seconds
     const timer = setTimeout(() => {
       setIsMinimized(true);
     }, 4000);
     return () => clearTimeout(timer);
   }, []);
 
+  const handleFirstLoad = React.useCallback(() => {
+    setIsLoading(false);
+  }, []);
+
   const handleReload = () => {
-    setIsLoading(true);
-    if (iframeRef.current) {
-      iframeRef.current.src = url;
+    const iframe = document.querySelector('iframe');
+    if (iframe) {
+      setIsLoading(true);
+      iframe.src = iframe.src;
     }
   };
 
@@ -48,7 +97,7 @@ export default function EventWebsiteEmbed({
     <div className="fixed inset-0 z-[99999] w-screen h-screen bg-[#040D21] overflow-hidden select-none">
       {/* Loading Overlay */}
       {isLoading && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#040D21] z-20 transition-opacity duration-300">
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#040D21] z-20 transition-opacity duration-300 pointer-events-none">
           <div className="relative w-16 h-16 mb-4">
             <div className="absolute inset-0 rounded-full border-4 border-blue-500/20 animate-ping"></div>
             <div className="absolute inset-0 rounded-full border-4 border-t-blue-500 border-r-transparent border-b-blue-500 border-l-transparent animate-spin"></div>
@@ -64,15 +113,11 @@ export default function EventWebsiteEmbed({
         </div>
       )}
 
-      {/* Full-Screen Iframe Application */}
-      <iframe
-        ref={iframeRef}
-        src={url}
+      {/* Stable Native DOM Iframe (Decoupled from React state resets) */}
+      <StableIframe
+        initialUrl={url}
         title={name || slug}
-        onLoad={() => setIsLoading(false)}
-        className="w-full h-full border-0 bg-[#040D21]"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; camera; microphone; geolocation"
-        allowFullScreen
+        onFirstLoad={handleFirstLoad}
       />
 
       {/* Floating Control Pill */}
