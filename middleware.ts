@@ -4,11 +4,13 @@ import type { NextRequest } from 'next/server';
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
-  // Skip internal Next.js routes, static files, and explicit top-level routes
+  // 1. Skip internal API lookup endpoint
+  if (pathname.startsWith('/api/websites')) {
+    return NextResponse.next();
+  }
+
+  // 2. Skip explicit main site pages
   if (
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/api') ||
-    pathname.includes('.') ||
     pathname === '/' ||
     pathname === '/about' ||
     pathname === '/events' ||
@@ -22,6 +24,72 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // 3. Handle asset requests (e.g. /_next/static/..., /assets/..., /fonts/..., /images/..., .css, .js, .png, etc.)
+  // When an event site requests root-relative assets, proxy them to the active event target!
+  const isAssetRequest =
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/assets/') ||
+    pathname.startsWith('/static/') ||
+    pathname.includes('.');
+
+  if (isAssetRequest) {
+    // Check for proxy target from Cookie or Referer
+    const proxyTargetCookie = request.cookies.get('__proxy_target')?.value;
+    const referer = request.headers.get('referer');
+
+    let targetOrigin = proxyTargetCookie;
+
+    // If no cookie, extract active slug from Referer header
+    if (!targetOrigin && referer) {
+      try {
+        const refUrl = new URL(referer);
+        if (refUrl.origin === request.nextUrl.origin) {
+          const refSlug = refUrl.pathname.split('/').filter(Boolean)[0];
+          if (
+            refSlug &&
+            !['about', 'events', 'execom', 'achievements', 'api'].includes(
+              refSlug
+            )
+          ) {
+            const apiUrl = new URL(
+              `/api/websites/${encodeURIComponent(refSlug)}`,
+              request.nextUrl.origin
+            );
+            const res = await fetch(apiUrl.toString());
+            if (res.ok) {
+              const data = await res.json();
+              if (data?.destinationUrl) {
+                targetOrigin = data.destinationUrl;
+              }
+            }
+          }
+        }
+      } catch (e) {}
+    }
+
+    if (targetOrigin) {
+      let cleanOrigin = targetOrigin.trim();
+      if (
+        !cleanOrigin.startsWith('http://') &&
+        !cleanOrigin.startsWith('https://')
+      ) {
+        cleanOrigin = `https://${cleanOrigin}`;
+      }
+      cleanOrigin = cleanOrigin.replace(/\/+$/, '');
+
+      const assetUrl = new URL(`${cleanOrigin}${pathname}${search}`);
+      return NextResponse.rewrite(assetUrl, {
+        request: {
+          headers: request.headers,
+        },
+      });
+    }
+
+    // Otherwise let Next.js handle main site static files
+    return NextResponse.next();
+  }
+
+  // 4. Handle Page & Route requests for dynamic event websites: /<slug>/...
   const segments = pathname.split('/').filter(Boolean);
   if (segments.length === 0) {
     return NextResponse.next();
@@ -31,7 +99,6 @@ export async function middleware(request: NextRequest) {
   const subPath = segments.slice(1).join('/');
 
   try {
-    // Construct internal API lookup URL (runs in Node.js runtime)
     const apiUrl = new URL(
       `/api/websites/${encodeURIComponent(slug)}`,
       request.nextUrl.origin
@@ -47,7 +114,6 @@ export async function middleware(request: NextRequest) {
       if (data && data.destinationUrl) {
         let destinationUrl: string = data.destinationUrl.trim();
 
-        // Ensure destination starts with protocol
         if (
           !destinationUrl.startsWith('http://') &&
           !destinationUrl.startsWith('https://')
@@ -55,7 +121,6 @@ export async function middleware(request: NextRequest) {
           destinationUrl = `https://${destinationUrl}`;
         }
 
-        // Clean trailing slashes
         const cleanDestination = destinationUrl.replace(/\/+$/, '');
         const targetUrl = subPath
           ? `${cleanDestination}/${subPath}${search}`
@@ -63,12 +128,21 @@ export async function middleware(request: NextRequest) {
 
         const rewriteUrl = new URL(targetUrl);
 
-        // Perform transparent 1st-party reverse proxy
-        return NextResponse.rewrite(rewriteUrl, {
+        const res = NextResponse.rewrite(rewriteUrl, {
           request: {
             headers: request.headers,
           },
         });
+
+        // Set the active proxy target cookie so all subsequent asset/chunk requests
+        // (like /_next/static/css/... or /assets/...) are seamlessly routed to this event site
+        res.cookies.set('__proxy_target', cleanDestination, {
+          path: '/',
+          sameSite: 'lax',
+          httpOnly: false,
+        });
+
+        return res;
       }
     }
   } catch (error) {
@@ -80,6 +154,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|opengraph-image).*)',
+    '/((?!favicon.ico|opengraph-image).*)',
   ],
 };
