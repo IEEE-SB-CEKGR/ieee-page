@@ -78,9 +78,15 @@ export async function middleware(request: NextRequest) {
       cleanOrigin = cleanOrigin.replace(/\/+$/, '');
 
       const assetUrl = new URL(`${cleanOrigin}${pathname}${search}`);
+      const requestHeaders = new Headers(request.headers);
+      const destUrl = new URL(cleanOrigin);
+      requestHeaders.set('Origin', destUrl.origin);
+      requestHeaders.set('Host', destUrl.host);
+      requestHeaders.set('X-Forwarded-Host', request.nextUrl.host);
+
       return NextResponse.rewrite(assetUrl, {
         request: {
-          headers: request.headers,
+          headers: requestHeaders,
         },
       });
     }
@@ -126,11 +132,15 @@ export async function middleware(request: NextRequest) {
           ? `${cleanDestination}/${subPath}${search}`
           : `${cleanDestination}${search}`;
 
-        const rewriteUrl = new URL(targetUrl);
+        const requestHeaders = new Headers(request.headers);
+        const destUrl = new URL(cleanDestination);
+        requestHeaders.set('Origin', destUrl.origin);
+        requestHeaders.set('Host', destUrl.host);
+        requestHeaders.set('X-Forwarded-Host', request.nextUrl.host);
 
         const res = NextResponse.rewrite(rewriteUrl, {
           request: {
-            headers: request.headers,
+            headers: requestHeaders,
           },
         });
 
@@ -158,9 +168,15 @@ export async function middleware(request: NextRequest) {
       cleanOrigin = cleanOrigin.replace(/\/+$/, '');
       
       const fallbackUrl = new URL(`${cleanOrigin}${pathname}${search}`);
+      const requestHeaders = new Headers(request.headers);
+      const destUrl = new URL(cleanOrigin);
+      requestHeaders.set('Origin', destUrl.origin);
+      requestHeaders.set('Host', destUrl.host);
+      requestHeaders.set('X-Forwarded-Host', request.nextUrl.host);
+
       return NextResponse.rewrite(fallbackUrl, {
         request: {
-          headers: request.headers,
+          headers: requestHeaders,
         },
       });
     }
