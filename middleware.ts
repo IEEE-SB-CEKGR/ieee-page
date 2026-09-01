@@ -152,6 +152,11 @@ export async function middleware(request: NextRequest) {
           sameSite: 'lax',
           httpOnly: false,
         });
+        res.cookies.set('__proxy_slug', slug, {
+          path: '/',
+          sameSite: 'lax',
+          httpOnly: false,
+        });
 
         return res;
       }
@@ -159,27 +164,13 @@ export async function middleware(request: NextRequest) {
 
     // 5. FALLBACK ROUTING FOR APP SUBPAGES (e.g., /login, /dashboard)
     // If the path is not a registered slug, check if we have an active proxy session.
-    // This allows absolute links like <a href="/login"> inside the proxied app to work seamlessly.
-    const proxyTargetCookie = request.cookies.get('__proxy_target')?.value;
-    if (proxyTargetCookie) {
-      let cleanOrigin = proxyTargetCookie.trim();
-      if (!cleanOrigin.startsWith('http://') && !cleanOrigin.startsWith('https://')) {
-        cleanOrigin = `https://${cleanOrigin}`;
-      }
-      cleanOrigin = cleanOrigin.replace(/\/+$/, '');
-      
-      const fallbackUrl = new URL(`${cleanOrigin}${pathname}${search}`);
-      const requestHeaders = new Headers(request.headers);
-      const destUrl = new URL(cleanOrigin);
-      requestHeaders.set('Origin', destUrl.origin);
-      requestHeaders.set('Host', destUrl.host);
-      requestHeaders.set('X-Forwarded-Host', request.nextUrl.host);
-
-      return NextResponse.rewrite(fallbackUrl, {
-        request: {
-          headers: requestHeaders,
-        },
-      });
+    // By redirecting back to the slug namespace (e.g., /c2cportal/login), we ensure the browser's address bar 
+    // correctly reflects the event website, solving the issue where links take the user to the bare domain (ieee.ce-kgr.org/login).
+    // The 307 Temporary Redirect status preserves POST requests and their bodies, ensuring login forms still work perfectly.
+    const proxySlugCookie = request.cookies.get('__proxy_slug')?.value;
+    if (proxySlugCookie && !pathname.startsWith(`/${proxySlugCookie}`)) {
+      const redirectUrl = new URL(`/${proxySlugCookie}${pathname}${search}`, request.nextUrl.origin);
+      return NextResponse.redirect(redirectUrl, 307);
     }
 
   } catch (error) {
