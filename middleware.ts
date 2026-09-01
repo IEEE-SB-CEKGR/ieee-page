@@ -132,6 +132,7 @@ export async function middleware(request: NextRequest) {
           ? `${cleanDestination}/${subPath}${search}`
           : `${cleanDestination}${search}`;
 
+        const rewriteUrl = new URL(targetUrl);
         const requestHeaders = new Headers(request.headers);
         const destUrl = new URL(cleanDestination);
         requestHeaders.set('Origin', destUrl.origin);
