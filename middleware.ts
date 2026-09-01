@@ -5,11 +5,7 @@ export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
   // 1. Skip internal explicit Next.js static and API paths
-  if (
-    pathname.startsWith('/api/websites') || 
-    pathname.startsWith('/api/') || 
-    pathname.startsWith('/_next/data/')
-  ) {
+  if (pathname.startsWith('/api/websites')) {
     return NextResponse.next();
   }
 
