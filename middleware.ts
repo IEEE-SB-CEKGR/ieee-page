@@ -4,8 +4,12 @@ import type { NextRequest } from 'next/server';
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
-  // 1. Skip internal API lookup endpoint
-  if (pathname.startsWith('/api/websites')) {
+  // 1. Skip internal explicit Next.js static and API paths
+  if (
+    pathname.startsWith('/api/websites') || 
+    pathname.startsWith('/api/') || 
+    pathname.startsWith('/_next/data/')
+  ) {
     return NextResponse.next();
   }
 
@@ -145,6 +149,26 @@ export async function middleware(request: NextRequest) {
         return res;
       }
     }
+
+    // 5. FALLBACK ROUTING FOR APP SUBPAGES (e.g., /login, /dashboard)
+    // If the path is not a registered slug, check if we have an active proxy session.
+    // This allows absolute links like <a href="/login"> inside the proxied app to work seamlessly.
+    const proxyTargetCookie = request.cookies.get('__proxy_target')?.value;
+    if (proxyTargetCookie) {
+      let cleanOrigin = proxyTargetCookie.trim();
+      if (!cleanOrigin.startsWith('http://') && !cleanOrigin.startsWith('https://')) {
+        cleanOrigin = `https://${cleanOrigin}`;
+      }
+      cleanOrigin = cleanOrigin.replace(/\/+$/, '');
+      
+      const fallbackUrl = new URL(`${cleanOrigin}${pathname}${search}`);
+      return NextResponse.rewrite(fallbackUrl, {
+        request: {
+          headers: request.headers,
+        },
+      });
+    }
+
   } catch (error) {
     console.error('Middleware: Error querying websites API:', error);
   }
