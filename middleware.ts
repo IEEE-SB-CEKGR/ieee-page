@@ -174,6 +174,7 @@ export async function middleware(request: NextRequest) {
 
       if (data && data.destinationUrl) {
         let destinationUrl: string = data.destinationUrl.trim();
+        const linkType: string = data.linkType || 'auto';
 
         if (
           !destinationUrl.startsWith('http://') &&
@@ -183,14 +184,40 @@ export async function middleware(request: NextRequest) {
         }
 
         const cleanDestination = destinationUrl.replace(/\/+$/, '');
-        const targetUrl = subPath
-          ? `${cleanDestination}/${subPath}${search}`
-          : `${cleanDestination}${search}`;
 
-        // If the destination is a non-rewritable service (Google Drive, Dropbox, etc.),
-        // redirect the user there instead of attempting a broken rewrite.
-        if (isNonRewritableUrl(cleanDestination)) {
-          return NextResponse.redirect(targetUrl, 302);
+        // Construct targetUrl properly, merging incoming search query parameters
+        let targetUrl: string;
+        try {
+          const parsed = new URL(destinationUrl);
+          if (subPath) {
+            parsed.pathname =
+              parsed.pathname.replace(/\/+$/, '') + '/' + subPath;
+          }
+          request.nextUrl.searchParams.forEach((val, key) => {
+            parsed.searchParams.set(key, val);
+          });
+          targetUrl = parsed.toString();
+        } catch {
+          targetUrl = subPath
+            ? `${cleanDestination}/${subPath}${search}`
+            : `${cleanDestination}${search}`;
+        }
+
+        // Determine whether to redirect or rewrite:
+        // 1. If explicitly set to 'redirect'
+        // 2. OR if it is a service known to block proxy rewriting (Google Drive, Docs, Forms, Dropbox, Notion, etc.)
+        const isNonRewritable = isNonRewritableUrl(cleanDestination);
+        const shouldRedirect =
+          linkType === 'redirect' ||
+          (linkType === 'auto' && isNonRewritable) ||
+          isNonRewritable;
+
+        if (shouldRedirect) {
+          const redirectRes = NextResponse.redirect(targetUrl, 307);
+          // Delete proxy cookies so they don't interfere with future requests
+          redirectRes.cookies.delete('__proxy_target');
+          redirectRes.cookies.delete('__proxy_slug');
+          return redirectRes;
         }
 
         const rewriteUrl = new URL(targetUrl);

@@ -15,15 +15,27 @@ export async function GET(
 
   try {
     // 1. Try querying via @vercel/postgres
-    const result = await sql`
-      SELECT destination_url, is_active FROM websites
-      WHERE LOWER(slug) = LOWER(${slug}) AND is_active = true
-      LIMIT 1
-    `;
+    let result;
+    try {
+      result = await sql`
+        SELECT destination_url, is_active, COALESCE(link_type, 'auto') as link_type FROM websites
+        WHERE LOWER(slug) = LOWER(${slug}) AND is_active = true
+        LIMIT 1
+      `;
+    } catch {
+      result = await sql`
+        SELECT destination_url, is_active FROM websites
+        WHERE LOWER(slug) = LOWER(${slug}) AND is_active = true
+        LIMIT 1
+      `;
+    }
 
     if (result && result.rows && result.rows.length > 0) {
       return NextResponse.json(
-        { destinationUrl: result.rows[0].destination_url },
+        {
+          destinationUrl: result.rows[0].destination_url,
+          linkType: result.rows[0].link_type || 'auto',
+        },
         {
           headers: {
             'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
@@ -46,10 +58,10 @@ export async function GET(
   if (supabaseUrl && supabaseKey) {
     try {
       const cleanUrl = supabaseUrl.replace(/\/+$/, '');
-      const response = await fetch(
+      let response = await fetch(
         `${cleanUrl}/rest/v1/websites?slug=ilike.${encodeURIComponent(
           slug
-        )}&is_active=eq.true&select=destination_url&limit=1`,
+        )}&is_active=eq.true&select=destination_url,link_type&limit=1`,
         {
           headers: {
             apikey: supabaseKey,
@@ -59,11 +71,30 @@ export async function GET(
         }
       );
 
+      if (!response.ok) {
+        // Fallback without link_type if column doesn't exist in Supabase yet
+        response = await fetch(
+          `${cleanUrl}/rest/v1/websites?slug=ilike.${encodeURIComponent(
+            slug
+          )}&is_active=eq.true&select=destination_url&limit=1`,
+          {
+            headers: {
+              apikey: supabaseKey,
+              Authorization: `Bearer ${supabaseKey}`,
+            },
+            cache: 'no-store',
+          }
+        );
+      }
+
       if (response.ok) {
         const rows = await response.json();
         if (Array.isArray(rows) && rows.length > 0 && rows[0].destination_url) {
           return NextResponse.json(
-            { destinationUrl: rows[0].destination_url },
+            {
+              destinationUrl: rows[0].destination_url,
+              linkType: rows[0].link_type || 'auto',
+            },
             {
               headers: {
                 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
