@@ -1,6 +1,56 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+// Domains that cannot be rewritten because they serve their own UI / block
+// iframe/proxy embedding (CORS, X-Frame-Options, CSP, etc.).
+// For these we do a 302 redirect so the user lands on the actual service.
+const NON_REWRITABLE_DOMAINS = [
+  'drive.google.com',
+  'docs.google.com',
+  'sheets.google.com',
+  'slides.google.com',
+  'forms.google.com',
+  'sites.google.com',
+  'dropbox.com',
+  'www.dropbox.com',
+  'onedrive.live.com',
+  '1drv.ms',
+  'sharepoint.com',
+  'notion.so',
+  'www.notion.so',
+  'notion.site',
+  'airtable.com',
+  'figma.com',
+  'www.figma.com',
+  'canva.com',
+  'www.canva.com',
+  'github.com',
+  'www.github.com',
+  'youtube.com',
+  'www.youtube.com',
+  'youtu.be',
+  'facebook.com',
+  'www.facebook.com',
+  'instagram.com',
+  'www.instagram.com',
+  'twitter.com',
+  'x.com',
+  'linkedin.com',
+  'www.linkedin.com',
+];
+
+function isNonRewritableUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    const hostname = parsed.hostname.toLowerCase();
+    return NON_REWRITABLE_DOMAINS.some(
+      (domain) => hostname === domain || hostname.endsWith(`.${domain}`)
+    );
+  } catch {
+    return false;
+  }
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
@@ -77,6 +127,11 @@ export async function middleware(request: NextRequest) {
       }
       cleanOrigin = cleanOrigin.replace(/\/+$/, '');
 
+      // Don't proxy assets for non-rewritable services (they won't serve them anyway)
+      if (isNonRewritableUrl(cleanOrigin)) {
+        return NextResponse.next();
+      }
+
       const assetUrl = new URL(`${cleanOrigin}${pathname}${search}`);
       const requestHeaders = new Headers(request.headers);
       const destUrl = new URL(cleanOrigin);
@@ -131,6 +186,12 @@ export async function middleware(request: NextRequest) {
         const targetUrl = subPath
           ? `${cleanDestination}/${subPath}${search}`
           : `${cleanDestination}${search}`;
+
+        // If the destination is a non-rewritable service (Google Drive, Dropbox, etc.),
+        // redirect the user there instead of attempting a broken rewrite.
+        if (isNonRewritableUrl(cleanDestination)) {
+          return NextResponse.redirect(targetUrl, 302);
+        }
 
         const rewriteUrl = new URL(targetUrl);
         const requestHeaders = new Headers(request.headers);
