@@ -171,7 +171,7 @@ export async function middleware(request: NextRequest) {
     );
 
     const response = await fetch(apiUrl.toString(), {
-      next: { revalidate: 60 },
+      next: { revalidate: 0 },
     });
 
     if (response.ok) {
