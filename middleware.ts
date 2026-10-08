@@ -41,14 +41,14 @@ export async function middleware(request: NextRequest) {
     if (result.rows.length > 0) {
       const destinationUrl = result.rows[0].destination_url;
 
-      // Build the rewrite URL
+      // Build the redirect URL
       // Remove trailing slash from destination URL for clean joining
       const cleanDestination = destinationUrl.replace(/\/+$/, '');
-      const rewriteUrl = subPath
+      const redirectUrl = subPath
         ? `${cleanDestination}/${subPath}`
         : cleanDestination;
 
-      return NextResponse.rewrite(new URL(rewriteUrl));
+      return NextResponse.redirect(new URL(redirectUrl));
     }
   } catch (error) {
     console.error('Middleware: Error querying websites table:', error);
