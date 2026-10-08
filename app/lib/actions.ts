@@ -65,13 +65,62 @@ export type Timeline = {
   achievement_id: string; // Foreign key to achievement
 };
 
+// Self-healing migration to ensure legacy production records have verified status
+let isLegacyVerified = false;
+
+export async function ensureVerifiedLegacyData() {
+  if (isLegacyVerified) return;
+  try {
+    // 1. Ensure status column exists if it was missing in legacy schema
+    await sql`ALTER TABLE IF EXISTS members ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'approved';`;
+    await sql`ALTER TABLE IF EXISTS achievements ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'approved';`;
+    await sql`ALTER TABLE IF EXISTS events ADD COLUMN IF NOT EXISTS status VARCHAR(255) DEFAULT 'approved';`;
+
+    // 2. Backfill existing legacy records to 'approved'
+    await sql`
+      UPDATE events 
+      SET status = 'approved' 
+      WHERE status IN ('hosted', 'hsoted') OR status IS NULL OR status = '';
+    `;
+    await sql`
+      UPDATE members 
+      SET status = 'approved' 
+      WHERE status IS NULL OR status = '';
+    `;
+    await sql`
+      UPDATE achievements 
+      SET status = 'approved' 
+      WHERE status IS NULL OR status = '';
+    `;
+    isLegacyVerified = true;
+  } catch (error) {
+    console.error('Error ensuring legacy data is verified:', error);
+  }
+}
+
 export async function fetchStats(): Promise<Stats> {
   try {
+    await ensureVerifiedLegacyData();
     // Using SQL to fetch actual counts from your database tables
-    const membersCount = await sql`SELECT COUNT(*) as count FROM members`;
-    const eventsCount = await sql`SELECT COUNT(*) as count FROM events`;
-    const awardsCount =
-      await sql`SELECT COUNT(*) as count FROM achievements WHERE type = 'award'`;
+    const membersCount = await sql`
+      SELECT COUNT(*) as count 
+      FROM members 
+      WHERE (status = 'approved' OR status IS NULL OR status = '') 
+        AND (status != 'rejected' AND status != 'pending')
+    `;
+    const eventsCount = await sql`
+      SELECT COUNT(*) as count 
+      FROM events 
+      WHERE (status = 'approved' OR status = 'hosted' OR status = 'hsoted' OR status IS NULL OR status = '') 
+        AND (status != 'rejected' AND status != 'pending')
+    `;
+    const awardsCount = await sql`
+      SELECT COUNT(*) as count 
+      FROM achievements 
+      WHERE type = 'award' 
+        AND (status = 'approved' OR status IS NULL OR status = '') 
+        AND (status != 'rejected' AND status != 'pending')
+    `;
 
     // You can either hardcode the founding year or store it in a settings table
     const yearsResult = await sql`
@@ -93,9 +142,12 @@ export async function fetchStats(): Promise<Stats> {
 
 export async function fetchUpcomingEventsAction() {
   try {
+    await ensureVerifiedLegacyData();
     const data = await sql<UpcomingEvent>`
       SELECT fee, name, image_url, id, date, mode, venue, description, link, time
       FROM events
+      WHERE (status = 'approved' OR status = 'hosted' OR status = 'hsoted' OR status IS NULL OR status = '')
+        AND (status != 'rejected' AND status != 'pending')
       ORDER BY date ASC
     `;
 
@@ -119,6 +171,7 @@ export async function filterMembersOnYear(year: string) {
       return []; // Return empty array instead of throwing
     }
 
+    await ensureVerifiedLegacyData();
     const members = await sql<Member>`
       SELECT
         id,
@@ -133,7 +186,9 @@ export async function filterMembersOnYear(year: string) {
         email,
         instagram
       FROM members
-      WHERE year = ${year}
+      WHERE year = ${year} 
+        AND (status = 'approved' OR status IS NULL OR status = '')
+        AND (status != 'rejected' AND status != 'pending')
       ORDER BY name
     `;
 
@@ -160,10 +215,13 @@ export async function filterMembersOnYear(year: string) {
 
 export async function fetchAchievements(): Promise<Achievement[]> {
   try {
+    await ensureVerifiedLegacyData();
     // Fetch achievements from your database using Vercel's SQL client
     const data = await sql<Achievement>`
       SELECT id, name, type, date, description, image_url, link
       FROM achievements
+      WHERE (status = 'approved' OR status IS NULL OR status = '')
+        AND (status != 'rejected' AND status != 'pending')
       ORDER BY date DESC
     `;
 
@@ -176,11 +234,14 @@ export async function fetchAchievements(): Promise<Achievement[]> {
 
 export async function fetchTopEvents(limit: number = 3): Promise<Event[]> {
   try {
+    await ensureVerifiedLegacyData();
     // Fetch recent events from your database using SQL
     const data = await sql<Event>`
       SELECT id, name, date, description, image_url, venue, mode, link
       FROM events
-      WHERE date >= CURRENT_DATE
+      WHERE date >= CURRENT_DATE 
+        AND (status = 'approved' OR status = 'hosted' OR status = 'hsoted' OR status IS NULL OR status = '')
+        AND (status != 'rejected' AND status != 'pending')
       ORDER BY date ASC
       LIMIT ${limit}
     `;
@@ -197,6 +258,7 @@ export async function fetchTopEvents(limit: number = 3): Promise<Event[]> {
  */
 export async function fetchTimeline(): Promise<Timeline[]> {
   try {
+    await ensureVerifiedLegacyData();
     // Join timeline with achievement tables to get complete data
     const data = await sql`
       SELECT 
@@ -210,6 +272,8 @@ export async function fetchTimeline(): Promise<Timeline[]> {
         timeline t
       JOIN 
         achievements a ON t.achievement_id = a.id
+      WHERE (a.status = 'approved' OR a.status IS NULL OR a.status = '')
+        AND (a.status != 'rejected' AND a.status != 'pending')
       ORDER BY 
         a.date DESC
     `;
@@ -239,9 +303,12 @@ export async function fetchTopAchievements(
   limit: number = 3,
 ): Promise<Achievement[]> {
   try {
+    await ensureVerifiedLegacyData();
     const data = await sql<Achievement>`
       SELECT id, name, description, date, image_url, type
       FROM achievements
+      WHERE (status = 'approved' OR status IS NULL OR status = '')
+        AND (status != 'rejected' AND status != 'pending')
       ORDER BY date DESC
       LIMIT ${limit}
     `;
@@ -258,10 +325,13 @@ export async function fetchTopAchievements(
  */
 export async function fetchAllAchievements(): Promise<Achievement[]> {
   try {
+    await ensureVerifiedLegacyData();
     const data = await sql<Achievement>`
       SELECT id, name, description, date, image_url, type, 
              TO_CHAR(date, 'YYYY') as year
       FROM achievements
+      WHERE (status = 'approved' OR status IS NULL OR status = '')
+        AND (status != 'rejected' AND status != 'pending')
       ORDER BY date DESC
     `;
 
@@ -279,10 +349,13 @@ export async function fetchAchievementById(
   id: string,
 ): Promise<Achievement | null> {
   try {
+    await ensureVerifiedLegacyData();
     const data = await sql<Achievement>`
       SELECT id, name, description, date, image_url, type
       FROM achievements
-      WHERE id = ${id}
+      WHERE id = ${id} 
+        AND (status = 'approved' OR status IS NULL OR status = '')
+        AND (status != 'rejected' AND status != 'pending')
     `;
 
     return data.rows[0] || null;

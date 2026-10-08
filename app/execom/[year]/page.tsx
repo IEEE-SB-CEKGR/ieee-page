@@ -7,6 +7,8 @@ async function loadYears() {
   const result = await sql<{ year: number }>`
     SELECT DISTINCT year
     FROM members
+    WHERE (status = 'approved' OR status IS NULL OR status = '')
+      AND (status != 'rejected' AND status != 'pending')
     ORDER BY year
   `;
   return result.rows.map((r) => r.year.toString());

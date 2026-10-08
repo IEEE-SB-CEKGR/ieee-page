@@ -18,7 +18,9 @@ export async function fetchUpcomingEvents() {
     const data = await sql<UpcomingEvent>`
       SELECT fee, name, image_url, id, date, mode, venue, time
       FROM events
-      WHERE date >= CURRENT_DATE
+      WHERE date >= CURRENT_DATE 
+        AND (status = 'approved' OR status = 'hosted' OR status = 'hsoted' OR status IS NULL OR status = '')
+        AND (status != 'rejected' AND status != 'pending')
       ORDER BY date ASC
       LIMIT 5`;
 
@@ -43,7 +45,11 @@ export async function fetchChart() {
   try {
     // Artificially delay a response for demo purposes.
     // Don't do this in production :)
-    const data = await sql`SELECT date FROM events WHERE status='hosted'`;
+    const data = await sql`
+      SELECT date FROM events 
+      WHERE (status = 'approved' OR status = 'hosted' OR status = 'hsoted' OR status IS NULL OR status = '') 
+        AND (status != 'rejected' AND status != 'pending')
+    `;
 
     const chartData = data.rows.map((date: any) => {
       let temp = formatDateToLocal(date.date).split(' ');
@@ -74,7 +80,11 @@ export async function fetchCardData() {
     // how to initialize multiple queries in parallel with JS.
     const eventCountPromise = sql`SELECT COUNT(*) FROM events`;
     const memberCountPromise = sql`SELECT COUNT(*) FROM members`;
-    const eventHostedPromise = sql`SELECT COUNT(*) FROM events WHERE status = 'hosted'`;
+    const eventHostedPromise = sql`
+      SELECT COUNT(*) FROM events 
+      WHERE (status = 'approved' OR status = 'hosted' OR status = 'hsoted' OR status IS NULL OR status = '') 
+        AND (status != 'rejected' AND status != 'pending')
+    `;
     const eventNotPromise = sql`SELECT COUNT(*) FROM events WHERE status = 'not'`;
 
     const data = await Promise.all([
