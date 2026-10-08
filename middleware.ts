@@ -1,27 +1,156 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { sql } from '@vercel/postgres';
+
+// Domains that cannot be rewritten because they serve their own UI / block
+// iframe/proxy embedding (CORS, X-Frame-Options, CSP, etc.).
+// For these we do a 302 redirect so the user lands on the actual service.
+const NON_REWRITABLE_DOMAINS = [
+  'drive.google.com',
+  'docs.google.com',
+  'sheets.google.com',
+  'slides.google.com',
+  'forms.google.com',
+  'sites.google.com',
+  'dropbox.com',
+  'www.dropbox.com',
+  'onedrive.live.com',
+  '1drv.ms',
+  'sharepoint.com',
+  'notion.so',
+  'www.notion.so',
+  'notion.site',
+  'airtable.com',
+  'figma.com',
+  'www.figma.com',
+  'canva.com',
+  'www.canva.com',
+  'github.com',
+  'www.github.com',
+  'youtube.com',
+  'www.youtube.com',
+  'youtu.be',
+  'facebook.com',
+  'www.facebook.com',
+  'instagram.com',
+  'www.instagram.com',
+  'twitter.com',
+  'x.com',
+  'linkedin.com',
+  'www.linkedin.com',
+];
+
+function isNonRewritableUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    const hostname = parsed.hostname.toLowerCase();
+    return NON_REWRITABLE_DOMAINS.some(
+      (domain) => hostname === domain || hostname.endsWith(`.${domain}`)
+    );
+  } catch {
+    return false;
+  }
+}
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname, search } = request.nextUrl;
 
-  // Skip middleware for internal Next.js routes, static files, API routes, and known app routes
+  // 1. Skip internal explicit Next.js static and API paths
+  if (pathname.startsWith('/api/websites')) {
+    return NextResponse.next();
+  }
+
+  // 2. Skip explicit main site pages
   if (
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/api') ||
-    pathname.includes('.') || // Static files (images, fonts, etc.)
     pathname === '/' ||
     pathname === '/about' ||
     pathname === '/events' ||
     pathname === '/execom' ||
-    pathname.startsWith('/about') ||
-    pathname.startsWith('/events') ||
-    pathname.startsWith('/execom')
+    pathname === '/achievements' ||
+    pathname.startsWith('/about/') ||
+    pathname.startsWith('/events/') ||
+    pathname.startsWith('/execom/') ||
+    pathname.startsWith('/achievements/')
   ) {
     return NextResponse.next();
   }
 
-  // Extract the first path segment as the potential slug
+  // 3. Handle asset requests (e.g. /_next/static/..., /assets/..., /fonts/..., /images/..., .css, .js, .png, etc.)
+  // When an event site requests root-relative assets, proxy them to the active event target!
+  const isAssetRequest =
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/assets/') ||
+    pathname.startsWith('/static/') ||
+    pathname.includes('.');
+
+  if (isAssetRequest) {
+    // Check for proxy target from Cookie or Referer
+    const proxyTargetCookie = request.cookies.get('__proxy_target')?.value;
+    const referer = request.headers.get('referer');
+
+    let targetOrigin = proxyTargetCookie;
+
+    // If no cookie, extract active slug from Referer header
+    if (!targetOrigin && referer) {
+      try {
+        const refUrl = new URL(referer);
+        if (refUrl.origin === request.nextUrl.origin) {
+          const refSlug = refUrl.pathname.split('/').filter(Boolean)[0];
+          if (
+            refSlug &&
+            !['about', 'events', 'execom', 'achievements', 'api'].includes(
+              refSlug
+            )
+          ) {
+            const apiUrl = new URL(
+              `/api/websites/${encodeURIComponent(refSlug)}`,
+              request.nextUrl.origin
+            );
+            const res = await fetch(apiUrl.toString());
+            if (res.ok) {
+              const data = await res.json();
+              if (data?.destinationUrl) {
+                targetOrigin = data.destinationUrl;
+              }
+            }
+          }
+        }
+      } catch (e) {}
+    }
+
+    if (targetOrigin) {
+      let cleanOrigin = targetOrigin.trim();
+      if (
+        !cleanOrigin.startsWith('http://') &&
+        !cleanOrigin.startsWith('https://')
+      ) {
+        cleanOrigin = `https://${cleanOrigin}`;
+      }
+      cleanOrigin = cleanOrigin.replace(/\/+$/, '');
+
+      // Don't proxy assets for non-rewritable services (they won't serve them anyway)
+      if (isNonRewritableUrl(cleanOrigin)) {
+        return NextResponse.next();
+      }
+
+      const assetUrl = new URL(`${cleanOrigin}${pathname}${search}`);
+      const requestHeaders = new Headers(request.headers);
+      const destUrl = new URL(cleanOrigin);
+      requestHeaders.set('Origin', destUrl.origin);
+      requestHeaders.set('Host', destUrl.host);
+      requestHeaders.set('X-Forwarded-Host', request.nextUrl.host);
+
+      return NextResponse.rewrite(assetUrl, {
+        request: {
+          headers: requestHeaders,
+        },
+      });
+    }
+
+    // Otherwise let Next.js handle main site static files
+    return NextResponse.next();
+  }
+
+  // 4. Handle Page & Route requests for dynamic event websites: /<slug>/...
   const segments = pathname.split('/').filter(Boolean);
   if (segments.length === 0) {
     return NextResponse.next();
@@ -31,37 +160,116 @@ export async function middleware(request: NextRequest) {
   const subPath = segments.slice(1).join('/');
 
   try {
-    // Query the database for an active website with this slug
-    const result = await sql`
-      SELECT destination_url FROM websites
-      WHERE slug = ${slug} AND is_active = true
-      LIMIT 1
-    `;
+    const apiUrl = new URL(
+      `/api/websites/${encodeURIComponent(slug)}`,
+      request.nextUrl.origin
+    );
 
-    if (result.rows.length > 0) {
-      const destinationUrl = result.rows[0].destination_url;
+    const response = await fetch(apiUrl.toString(), {
+      next: { revalidate: 60 },
+    });
 
-      // Build the redirect URL
-      // Remove trailing slash from destination URL for clean joining
-      const cleanDestination = destinationUrl.replace(/\/+$/, '');
-      const redirectUrl = subPath
-        ? `${cleanDestination}/${subPath}`
-        : cleanDestination;
+    if (response.ok) {
+      const data = await response.json();
 
-      return NextResponse.redirect(new URL(redirectUrl));
+      if (data && data.destinationUrl) {
+        let destinationUrl: string = data.destinationUrl.trim();
+        const linkType: string = data.linkType || 'auto';
+
+        if (
+          !destinationUrl.startsWith('http://') &&
+          !destinationUrl.startsWith('https://')
+        ) {
+          destinationUrl = `https://${destinationUrl}`;
+        }
+
+        const cleanDestination = destinationUrl.replace(/\/+$/, '');
+
+        // Construct targetUrl properly, merging incoming search query parameters
+        let targetUrl: string;
+        try {
+          const parsed = new URL(destinationUrl);
+          if (subPath) {
+            parsed.pathname =
+              parsed.pathname.replace(/\/+$/, '') + '/' + subPath;
+          }
+          request.nextUrl.searchParams.forEach((val, key) => {
+            parsed.searchParams.set(key, val);
+          });
+          targetUrl = parsed.toString();
+        } catch {
+          targetUrl = subPath
+            ? `${cleanDestination}/${subPath}${search}`
+            : `${cleanDestination}${search}`;
+        }
+
+        // Determine whether to redirect or rewrite:
+        // 1. If explicitly set to 'redirect'
+        // 2. OR if it is a service known to block proxy rewriting (Google Drive, Docs, Forms, Dropbox, Notion, etc.)
+        const isNonRewritable = isNonRewritableUrl(cleanDestination);
+        const shouldRedirect =
+          linkType === 'redirect' ||
+          (linkType === 'auto' && isNonRewritable) ||
+          isNonRewritable;
+
+        if (shouldRedirect) {
+          const redirectRes = NextResponse.redirect(targetUrl, 307);
+          // Delete proxy cookies so they don't interfere with future requests
+          redirectRes.cookies.delete('__proxy_target');
+          redirectRes.cookies.delete('__proxy_slug');
+          return redirectRes;
+        }
+
+        const rewriteUrl = new URL(targetUrl);
+        const requestHeaders = new Headers(request.headers);
+        const destUrl = new URL(cleanDestination);
+        requestHeaders.set('Origin', destUrl.origin);
+        requestHeaders.set('Host', destUrl.host);
+        requestHeaders.set('X-Forwarded-Host', request.nextUrl.host);
+
+        const res = NextResponse.rewrite(rewriteUrl, {
+          request: {
+            headers: requestHeaders,
+          },
+        });
+
+        // Set the active proxy target cookie so all subsequent asset/chunk requests
+        // (like /_next/static/css/... or /assets/...) are seamlessly routed to this event site
+        res.cookies.set('__proxy_target', cleanDestination, {
+          path: '/',
+          sameSite: 'lax',
+          httpOnly: false,
+        });
+        res.cookies.set('__proxy_slug', slug, {
+          path: '/',
+          sameSite: 'lax',
+          httpOnly: false,
+        });
+
+        return res;
+      }
     }
+
+    // 5. FALLBACK ROUTING FOR APP SUBPAGES (e.g., /login, /dashboard)
+    // If the path is not a registered slug, check if we have an active proxy session.
+    // By redirecting back to the slug namespace (e.g., /c2cportal/login), we ensure the browser's address bar 
+    // correctly reflects the event website, solving the issue where links take the user to the bare domain (ieee.ce-kgr.org/login).
+    // The 307 Temporary Redirect status preserves POST requests and their bodies, ensuring login forms still work perfectly.
+    const proxySlugCookie = request.cookies.get('__proxy_slug')?.value;
+    if (proxySlugCookie && !pathname.startsWith(`/${proxySlugCookie}`)) {
+      const redirectUrl = new URL(`/${proxySlugCookie}${pathname}${search}`, request.nextUrl.origin);
+      return NextResponse.redirect(redirectUrl, 307);
+    }
+
   } catch (error) {
-    console.error('Middleware: Error querying websites table:', error);
-    // If database query fails, fall through to normal routing
-    // The hardcoded rewrites in next.config.js will still work as fallback
+    console.error('Middleware: Error querying websites API:', error);
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  // Match all paths except internal Next.js paths and static files
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|opengraph-image).*)',
+    '/((?!favicon.ico|opengraph-image).*)',
   ],
 };
