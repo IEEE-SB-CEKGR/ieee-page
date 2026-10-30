@@ -42,6 +42,21 @@ const NON_REWRITABLE_DOMAINS = [
   'x.com',
   'linkedin.com',
   'www.linkedin.com',
+  // Event & Ticketing platforms (Checkout, payment gateways, and CSRF require native redirect)
+  'funded.site',
+  'events.funded.site',
+  'funded.events',
+  'makemypass.com',
+  'eventbrite.com',
+  'eventbrite.co.uk',
+  'lu.ma',
+  'luma.com',
+  'townscript.com',
+  'yepdesk.com',
+  'devfolio.co',
+  'unstop.com',
+  'konfhub.com',
+  'ticketmaster.com',
 ];
 
 function isNonRewritableUrl(url: string): boolean {
@@ -137,9 +152,11 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next();
       }
 
-      const assetUrl = new URL(`${cleanOrigin}${pathname}${search}`);
-      const requestHeaders = new Headers(request.headers);
       const destUrl = new URL(cleanOrigin);
+      // Root-relative assets must always be fetched from the destination's origin,
+      // avoiding 404s when cleanOrigin includes a subpath (e.g. /e/event-name)
+      const assetUrl = new URL(`${destUrl.origin}${pathname}${search}`);
+      const requestHeaders = new Headers(request.headers);
       requestHeaders.set('Origin', destUrl.origin);
       requestHeaders.set('Host', destUrl.host);
       requestHeaders.set('X-Forwarded-Host', request.nextUrl.host);
@@ -171,7 +188,7 @@ export async function middleware(request: NextRequest) {
     );
 
     const response = await fetch(apiUrl.toString(), {
-      next: { revalidate: 0 },
+      cache: 'no-store',
     });
 
     if (response.ok) {
